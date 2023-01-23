@@ -14,6 +14,36 @@
 		B5AC55382971DA7D00FF72C6 /* CCGTimeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC55372971DA7D00FF72C6 /* CCGTimeTests.swift */; };
 		B5AC55422971DA7D00FF72C6 /* CCGTimeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC55412971DA7D00FF72C6 /* CCGTimeUITests.swift */; };
 		B5AC55442971DA7D00FF72C6 /* CCGTimeUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC55432971DA7D00FF72C6 /* CCGTimeUITestsLaunchTests.swift */; };
+		B5AC55672971FA5400FF72C6 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = B5AC55662971FA5400FF72C6 /* FirebaseAnalytics */; };
+		B5AC55692971FA5400FF72C6 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B5AC55682971FA5400FF72C6 /* FirebaseAuth */; };
+		B5AC556B2971FA5400FF72C6 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B5AC556A2971FA5400FF72C6 /* FirebaseFirestore */; };
+		B5AC556D2971FA5400FF72C6 /* FirebaseFirestoreSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B5AC556C2971FA5400FF72C6 /* FirebaseFirestoreSwift */; };
+		B5AC556F2971FA5400FF72C6 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B5AC556E2971FA5400FF72C6 /* FirebaseStorage */; };
+		B5AC55782971FD6400FF72C6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC55282971DA7A00FF72C6 /* ContentView.swift */; };
+		B5AC55792971FD6500FF72C6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC55282971DA7A00FF72C6 /* ContentView.swift */; };
+		B5AC557A2971FD6A00FF72C6 /* CCGTimeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC55262971DA7A00FF72C6 /* CCGTimeApp.swift */; };
+		B5AC557B2971FD6B00FF72C6 /* CCGTimeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5AC55262971DA7A00FF72C6 /* CCGTimeApp.swift */; };
+		B5AC557E2971FD8E00FF72C6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5AC552A2971DA7C00FF72C6 /* Assets.xcassets */; };
+		B5AC557F2971FD8F00FF72C6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B5AC552A2971DA7C00FF72C6 /* Assets.xcassets */; };
+		B5AC55812971FEBE00FF72C6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5AC55802971FEBE00FF72C6 /* GoogleService-Info.plist */; };
+		B5AC55822971FEBE00FF72C6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5AC55802971FEBE00FF72C6 /* GoogleService-Info.plist */; };
+		B5AC55832971FEBE00FF72C6 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B5AC55802971FEBE00FF72C6 /* GoogleService-Info.plist */; };
+		B5E396BB2972037800EDCDE7 /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396AA2972037800EDCDE7 /* Alert.swift */; };
+		B5E396BC2972037800EDCDE7 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396AC2972037800EDCDE7 /* ViewController.swift */; };
+		B5E396BD2972037800EDCDE7 /* ManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396AD2972037800EDCDE7 /* ManagerView.swift */; };
+		B5E396BE2972037800EDCDE7 /* AdminView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396AE2972037800EDCDE7 /* AdminView.swift */; };
+		B5E396BF2972037800EDCDE7 /* DepartmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396AF2972037800EDCDE7 /* DepartmentView.swift */; };
+		B5E396C02972037800EDCDE7 /* AddEmployeeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396B02972037800EDCDE7 /* AddEmployeeView.swift */; };
+		B5E396C12972037800EDCDE7 /* EmployeeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396B12972037800EDCDE7 /* EmployeeView.swift */; };
+		B5E396C22972037800EDCDE7 /* DateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396B22972037800EDCDE7 /* DateView.swift */; };
+		B5E396C32972037800EDCDE7 /* DepartmentModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396B42972037800EDCDE7 /* DepartmentModel.swift */; };
+		B5E396C42972037800EDCDE7 /* EmployeeModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396B52972037800EDCDE7 /* EmployeeModel.swift */; };
+		B5E396C52972037800EDCDE7 /* EmployeeTimecard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396B72972037800EDCDE7 /* EmployeeTimecard.swift */; };
+		B5E396C62972037800EDCDE7 /* Employees.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396B82972037800EDCDE7 /* Employees.swift */; };
+		B5E396C72972037800EDCDE7 /* Department.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396B92972037800EDCDE7 /* Department.swift */; };
+		B5E396C82972037800EDCDE7 /* Employee.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E396BA2972037800EDCDE7 /* Employee.swift */; };
+		B5E396CC2972064F00EDCDE7 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = B5E396CB2972064F00EDCDE7 /* Collections */; };
+		B5E396CE2972064F00EDCDE7 /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = B5E396CD2972064F00EDCDE7 /* OrderedCollections */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,6 +74,21 @@
 		B5AC553D2971DA7D00FF72C6 /* CCGTimeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CCGTimeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B5AC55412971DA7D00FF72C6 /* CCGTimeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCGTimeUITests.swift; sourceTree = "<group>"; };
 		B5AC55432971DA7D00FF72C6 /* CCGTimeUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CCGTimeUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		B5AC55802971FEBE00FF72C6 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B5E396AA2972037800EDCDE7 /* Alert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
+		B5E396AC2972037800EDCDE7 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B5E396AD2972037800EDCDE7 /* ManagerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagerView.swift; sourceTree = "<group>"; };
+		B5E396AE2972037800EDCDE7 /* AdminView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AdminView.swift; sourceTree = "<group>"; };
+		B5E396AF2972037800EDCDE7 /* DepartmentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DepartmentView.swift; sourceTree = "<group>"; };
+		B5E396B02972037800EDCDE7 /* AddEmployeeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddEmployeeView.swift; sourceTree = "<group>"; };
+		B5E396B12972037800EDCDE7 /* EmployeeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeView.swift; sourceTree = "<group>"; };
+		B5E396B22972037800EDCDE7 /* DateView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateView.swift; sourceTree = "<group>"; };
+		B5E396B42972037800EDCDE7 /* DepartmentModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DepartmentModel.swift; sourceTree = "<group>"; };
+		B5E396B52972037800EDCDE7 /* EmployeeModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeModel.swift; sourceTree = "<group>"; };
+		B5E396B72972037800EDCDE7 /* EmployeeTimecard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeTimecard.swift; sourceTree = "<group>"; };
+		B5E396B82972037800EDCDE7 /* Employees.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Employees.swift; sourceTree = "<group>"; };
+		B5E396B92972037800EDCDE7 /* Department.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Department.swift; sourceTree = "<group>"; };
+		B5E396BA2972037800EDCDE7 /* Employee.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Employee.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -51,6 +96,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5E396CC2972064F00EDCDE7 /* Collections in Frameworks */,
+				B5AC55672971FA5400FF72C6 /* FirebaseAnalytics in Frameworks */,
+				B5AC55692971FA5400FF72C6 /* FirebaseAuth in Frameworks */,
+				B5AC556B2971FA5400FF72C6 /* FirebaseFirestore in Frameworks */,
+				B5AC556F2971FA5400FF72C6 /* FirebaseStorage in Frameworks */,
+				B5E396CE2972064F00EDCDE7 /* OrderedCollections in Frameworks */,
+				B5AC556D2971FA5400FF72C6 /* FirebaseFirestoreSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +127,10 @@
 			isa = PBXGroup;
 			children = (
 				B5AC55252971DA7A00FF72C6 /* CCGTime */,
+				B5E396B32972037800EDCDE7 /* ViewModels */,
+				B5E396B62972037800EDCDE7 /* Models */,
+				B5E396AB2972037800EDCDE7 /* Views */,
+				B5E396A92972037800EDCDE7 /* Static Library */,
 				B5AC55362971DA7D00FF72C6 /* CCGTimeTests */,
 				B5AC55402971DA7D00FF72C6 /* CCGTimeUITests */,
 				B5AC55242971DA7A00FF72C6 /* Products */,
@@ -96,6 +152,7 @@
 			children = (
 				B5AC55262971DA7A00FF72C6 /* CCGTimeApp.swift */,
 				B5AC55282971DA7A00FF72C6 /* ContentView.swift */,
+				B5AC55802971FEBE00FF72C6 /* GoogleService-Info.plist */,
 				B5AC552A2971DA7C00FF72C6 /* Assets.xcassets */,
 				B5AC552C2971DA7C00FF72C6 /* Preview Content */,
 			);
@@ -127,6 +184,50 @@
 			path = CCGTimeUITests;
 			sourceTree = "<group>";
 		};
+		B5E396A92972037800EDCDE7 /* Static Library */ = {
+			isa = PBXGroup;
+			children = (
+				B5E396AA2972037800EDCDE7 /* Alert.swift */,
+			);
+			name = "Static Library";
+			path = "CCGTime/Static Library";
+			sourceTree = "<group>";
+		};
+		B5E396AB2972037800EDCDE7 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B5E396AC2972037800EDCDE7 /* ViewController.swift */,
+				B5E396AD2972037800EDCDE7 /* ManagerView.swift */,
+				B5E396AE2972037800EDCDE7 /* AdminView.swift */,
+				B5E396AF2972037800EDCDE7 /* DepartmentView.swift */,
+				B5E396B02972037800EDCDE7 /* AddEmployeeView.swift */,
+				B5E396B12972037800EDCDE7 /* EmployeeView.swift */,
+				B5E396B22972037800EDCDE7 /* DateView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		B5E396B32972037800EDCDE7 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				B5E396B42972037800EDCDE7 /* DepartmentModel.swift */,
+				B5E396B52972037800EDCDE7 /* EmployeeModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		B5E396B62972037800EDCDE7 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B5E396B72972037800EDCDE7 /* EmployeeTimecard.swift */,
+				B5E396B82972037800EDCDE7 /* Employees.swift */,
+				B5E396B92972037800EDCDE7 /* Department.swift */,
+				B5E396BA2972037800EDCDE7 /* Employee.swift */,
+			);
+			name = Models;
+			path = CCGTime/Models;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -143,6 +244,15 @@
 			dependencies = (
 			);
 			name = CCGTime;
+			packageProductDependencies = (
+				B5AC55662971FA5400FF72C6 /* FirebaseAnalytics */,
+				B5AC55682971FA5400FF72C6 /* FirebaseAuth */,
+				B5AC556A2971FA5400FF72C6 /* FirebaseFirestore */,
+				B5AC556C2971FA5400FF72C6 /* FirebaseFirestoreSwift */,
+				B5AC556E2971FA5400FF72C6 /* FirebaseStorage */,
+				B5E396CB2972064F00EDCDE7 /* Collections */,
+				B5E396CD2972064F00EDCDE7 /* OrderedCollections */,
+			);
 			productName = CCGTime;
 			productReference = B5AC55232971DA7A00FF72C6 /* CCGTime.app */;
 			productType = "com.apple.product-type.application";
@@ -215,6 +325,10 @@
 				Base,
 			);
 			mainGroup = B5AC551A2971DA7A00FF72C6;
+			packageReferences = (
+				B5AC55652971FA5400FF72C6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B5E396CA2972064F00EDCDE7 /* XCRemoteSwiftPackageReference "swift-collections" */,
+			);
 			productRefGroup = B5AC55242971DA7A00FF72C6 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -231,6 +345,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5AC55812971FEBE00FF72C6 /* GoogleService-Info.plist in Resources */,
 				B5AC552E2971DA7C00FF72C6 /* Preview Assets.xcassets in Resources */,
 				B5AC552B2971DA7C00FF72C6 /* Assets.xcassets in Resources */,
 			);
@@ -240,6 +355,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5AC557E2971FD8E00FF72C6 /* Assets.xcassets in Resources */,
+				B5AC55822971FEBE00FF72C6 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,6 +364,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5AC557F2971FD8F00FF72C6 /* Assets.xcassets in Resources */,
+				B5AC55832971FEBE00FF72C6 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,7 +376,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5E396C22972037800EDCDE7 /* DateView.swift in Sources */,
+				B5E396BE2972037800EDCDE7 /* AdminView.swift in Sources */,
+				B5E396C72972037800EDCDE7 /* Department.swift in Sources */,
+				B5E396BB2972037800EDCDE7 /* Alert.swift in Sources */,
+				B5E396C42972037800EDCDE7 /* EmployeeModel.swift in Sources */,
 				B5AC55292971DA7A00FF72C6 /* ContentView.swift in Sources */,
+				B5E396BC2972037800EDCDE7 /* ViewController.swift in Sources */,
+				B5E396C32972037800EDCDE7 /* DepartmentModel.swift in Sources */,
+				B5E396C52972037800EDCDE7 /* EmployeeTimecard.swift in Sources */,
+				B5E396C82972037800EDCDE7 /* Employee.swift in Sources */,
+				B5E396C12972037800EDCDE7 /* EmployeeView.swift in Sources */,
+				B5E396C02972037800EDCDE7 /* AddEmployeeView.swift in Sources */,
+				B5E396BF2972037800EDCDE7 /* DepartmentView.swift in Sources */,
+				B5E396C62972037800EDCDE7 /* Employees.swift in Sources */,
+				B5E396BD2972037800EDCDE7 /* ManagerView.swift in Sources */,
 				B5AC55272971DA7A00FF72C6 /* CCGTimeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -266,7 +399,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5AC55782971FD6400FF72C6 /* ContentView.swift in Sources */,
 				B5AC55382971DA7D00FF72C6 /* CCGTimeTests.swift in Sources */,
+				B5AC557A2971FD6A00FF72C6 /* CCGTimeApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,8 +409,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B5AC557B2971FD6B00FF72C6 /* CCGTimeApp.swift in Sources */,
 				B5AC55422971DA7D00FF72C6 /* CCGTimeUITests.swift in Sources */,
 				B5AC55442971DA7D00FF72C6 /* CCGTimeUITestsLaunchTests.swift in Sources */,
+				B5AC55792971FD6500FF72C6 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -583,6 +720,63 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B5AC55652971FA5400FF72C6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.0.0;
+			};
+		};
+		B5E396CA2972064F00EDCDE7 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B5AC55662971FA5400FF72C6 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5AC55652971FA5400FF72C6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		B5AC55682971FA5400FF72C6 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5AC55652971FA5400FF72C6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		B5AC556A2971FA5400FF72C6 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5AC55652971FA5400FF72C6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		B5AC556C2971FA5400FF72C6 /* FirebaseFirestoreSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5AC55652971FA5400FF72C6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestoreSwift;
+		};
+		B5AC556E2971FA5400FF72C6 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5AC55652971FA5400FF72C6 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+		B5E396CB2972064F00EDCDE7 /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5E396CA2972064F00EDCDE7 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
+		};
+		B5E396CD2972064F00EDCDE7 /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B5E396CA2972064F00EDCDE7 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B5AC551B2971DA7A00FF72C6 /* Project object */;
 }
