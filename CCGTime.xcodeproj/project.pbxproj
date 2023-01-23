@@ -204,7 +204,8 @@
 				B5E396B12972037800EDCDE7 /* EmployeeView.swift */,
 				B5E396B22972037800EDCDE7 /* DateView.swift */,
 			);
-			path = Views;
+			name = Views;
+			path = CCGTime/Views;
 			sourceTree = "<group>";
 		};
 		B5E396B32972037800EDCDE7 /* ViewModels */ = {
@@ -213,7 +214,8 @@
 				B5E396B42972037800EDCDE7 /* DepartmentModel.swift */,
 				B5E396B52972037800EDCDE7 /* EmployeeModel.swift */,
 			);
-			path = ViewModels;
+			name = ViewModels;
+			path = CCGTime/ViewModels;
 			sourceTree = "<group>";
 		};
 		B5E396B62972037800EDCDE7 /* Models */ = {
