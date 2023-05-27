@@ -11,6 +11,7 @@ struct EmployeeView: View {
     
     @State var employeeDepartment = ""
     @State var selectedDepartment = "Select A Department"
+    @FocusState var isInputActive: Bool
     @ObservedObject var employeeNumber = NumbersOnly()
     @ObservedObject var EmpModel = EmployeeModel()
     @ObservedObject var DeptModel = DepartmentModel()
@@ -23,19 +24,43 @@ struct EmployeeView: View {
                     TextField("Employee ID Number", text: $employeeNumber.value)
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.center)
-                        .frame(width: 200)
-                        .buttonBorderShape(
-                            ButtonBorderShape.roundedRectangle(radius: 3.5)
+                        .frame(width: 180)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 5)
+                                .strokeBorder(.blue, lineWidth: 2)
+                                .scaleEffect(1.75)
                         )
+                        .focused($isInputActive)
+                    
+                        // Toolbar to create 'Done' button to close keyboard
+                        .toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                
+                                Button("Done") {
+                                    isInputActive = false
+                                }
+                            }
+                        }
+                    
                             
                     Menu(selectedDepartment) {
-                        ForEach(DeptModel.departments, id: \.self) { item in
+                        ForEach(DeptModel.deptStrings, id: \.self) { item in
                             Button(item) {
                                 self.selectedDepartment = item
                                 self.employeeDepartment = item
                             }
                         }
                     }
+                    .background(
+                        RoundedRectangle(cornerRadius: 5)
+                            .strokeBorder(.blue, lineWidth: 2)
+                            //.fill(Color.blue)
+                            .scaleEffect(1.5)
+                    )
+                    
+                    Spacer()
+                        .frame(height: 15)
                             
                     Button("Clock In") {
                         let empNum = employeeNumber
@@ -44,33 +69,33 @@ struct EmployeeView: View {
                             EmpModel.checkId(id: empNum) { idIsValid in
                                         
                                 if (idIsValid) {
-                                    //Alert.clockInSuccess()
+                                    let currentTime = Time.fancyTime()
+                                    
                                     let timecard = EmployeeTimecard(employeeID: empNum.value)
                                     EmpModel.clockIn(timecard: timecard, department: employeeDepartment)
                                     EmpModel.get(id: empNum) { emp in
-                                        Alert.message("Success!", "\(emp.name) has succesfully clocked in at currentTime.")
+                                        Alert.message("Success!", "\(emp.name) has succesfully clocked in at \(currentTime).")
                                     }
                                 }
                                 else {
                                     if (empNum.value != "") {
-                                        Alert.error("ID Number \(empNum.value) does not exist.")
+                                        Alert.error("Employee ID Number \(empNum.value) does not exist.")
                                     }
                                     else {
                                         Alert.error("Please enter an ID number.")
                                     }
-                                    //Alert.clockInFail()
                                 }
                             }
                         }
                         else {
-                            Alert.error("Please select a department!")
+                            Alert.error("Please select a department.")
                         }
                     }
                     .foregroundColor(Color.white)
                     .background(
                         RoundedRectangle(cornerRadius: 15)
                             .fill(Color.blue)
-                            .scaleEffect(1.5)
+                            .scaleEffect(1.6)
                     )
                     Spacer()
                         .frame(height: 150)

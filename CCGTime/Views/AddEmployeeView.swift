@@ -56,7 +56,7 @@ struct AddEmployeeView: View {
                         TextField("Input Hourly Wage", text: $employeeWage.value)
                             .keyboardType(.decimalPad)
                         Picker("Select A Department", selection: $employeeDepartment) {
-                            ForEach(DeptModel.departments, id: \.self) {
+                            ForEach(DeptModel.deptStrings, id: \.self) {
                                 Text($0)
                             }
                         }

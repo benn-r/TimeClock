@@ -2,7 +2,7 @@
 //  DepartmentModel.swift
 //  CCGTime
 //
-//  Created by ben on 5/26/22.
+//  Created by Ben Rosario on 5/26/22.
 //
 
 import Foundation
@@ -13,9 +13,12 @@ import OrderedCollections
 
 class DepartmentModel: ObservableObject {
     
-    @Published var departments = [String]()
+    @Published var deptStrings = [String]()
+    var departments = [Department]()
     
-    var deptArray = [Department]()
+    @Published var archiveStrings = [String]()
+    var archives = [Department]()
+    
     var db: Firestore!
     
     init() {
@@ -45,7 +48,9 @@ class DepartmentModel: ObservableObject {
         return fancyDateString
     }
     
-    func trashDepartment(_ name: String) {
+    func archiveDepartment(_ name: String) {
+        
+        print("Archiving Department: \(name)")
         
         // Add 'deleted' field for sorting purposes
         self.db.collection("departments")
@@ -58,7 +63,7 @@ class DepartmentModel: ObservableObject {
         deptRef.getDocument() { document, err in
             if err != nil { return }
             
-            archiveRef.setData(document?.data()! ?? ["Document was nil" : ""])
+            archiveRef.setData(document?.data() ?? ["Document was nil" : ""])
             
         }
         
@@ -80,6 +85,27 @@ class DepartmentModel: ObservableObject {
         deptRef.delete()
     }
     
+    func unarchiveDepartment(_ name: String) {
+        //TODO: Create function
+        print("Unarchiving department: \(name)")
+    }
+    
+    func deleteDepartment(_ name: String) {
+        
+        let archiveRef = self.db.collection("archive")
+        let docRef = archiveRef.document(name)
+        
+        /*
+            TODO: Delete subcollections from Firestore via
+            server or cloud function - doing so from a mobile
+            client has negative security and performance implications
+         */
+        
+        docRef.delete()
+        //     ^ DOES NOT delete subcollections
+        
+    }
+    
     func loadData() {
         // Add listener for departments collection
         db.collection("departments").addSnapshotListener() { (querySnapshot, error) in
@@ -87,13 +113,30 @@ class DepartmentModel: ObservableObject {
                 print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
                 return
             }
-            self.deptArray = []
             self.departments = []
+            self.deptStrings = []
             // there are querySnapshot!.documents.count documents in the spots snapshot
             for document in querySnapshot!.documents {
                 let dept = Department(name: document.documentID)
-                self.deptArray.append(dept)
-                self.departments.append(dept.name)
+                self.departments.append(dept)
+                self.deptStrings.append(dept.name)
+            }
+        }
+        
+        // Add listener for archive collection
+        db.collection("archive").addSnapshotListener() { (querySnapshot, error) in
+            guard error == nil else {
+                print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
+                return
+            }
+            self.archives = []
+            self.archiveStrings = []
+            
+            // there are querySnapshot!.documents.count documents in the spots snapshot
+            for document in querySnapshot!.documents {
+                let dept = Department(name: document.documentID)
+                self.archives.append(dept)
+                self.archiveStrings.append(dept.name)
             }
         }
     }

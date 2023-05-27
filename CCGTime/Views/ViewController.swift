@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  CCGTime
 //
-//  Created by ben on 5/25/22.
+//  Created by Ben Rosario on 5/25/22.
 //
 
 import SwiftUI
@@ -41,6 +41,10 @@ struct ViewController_Previews: PreviewProvider {
     }
 }
 
+// NumbersOnly
+// Used to restrict text input to only filtered keywords
+// Used in creating new employees to ensure employeeIDs are only composed of digits
+// Maybe move to seperate file?
 
 class NumbersOnly: ObservableObject {
     @Published var value = "" {
@@ -54,6 +58,10 @@ class NumbersOnly: ObservableObject {
     }
 }
 
+// FloatsOnly
+// Used to restrict text input to only filtered keywords
+// Rework needed, as I believe you can insert multiple periods (.) in one field
+// Maybe move to seperate file?
 
 class FloatsOnly: ObservableObject {
     @Published var value = "" {

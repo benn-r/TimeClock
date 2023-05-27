@@ -127,8 +127,11 @@ class EmployeeModel: ObservableObject {
     
     func checkId(id: NumbersOnly, completion: @escaping (_ idExists: Bool) -> Void) {
         
+        var idIsValid: Bool = false;
+
         if (id.value == "") {
-            completion(false)
+            idIsValid = false
+            completion(idIsValid)
         }
         else {
             let docRef = db.collection("employees").document(id.value)
@@ -140,15 +143,21 @@ class EmployeeModel: ObservableObject {
                 if let document = document, document.exists {
                     let dataDescription = document.data().map(String.init(describing:)) ?? "nil"
                     print("Document data: \(dataDescription)")
-                    completion(true)
+                    idIsValid = true
+                    completion(idIsValid)
                 } else {
                     print("Document does not exist")
-                    completion(false)
+                    idIsValid = false
+                    completion(idIsValid)
                 }
             }
         }
     }
-    
+    /**
+    * Make sure to call checkId on the same id number BEFORE calling the get function
+    * A failure case may occur otherwise
+    * 
+    */
     func get(id: NumbersOnly, completion: @escaping (_ employee: Employee) -> Void) {
         let docRef = db.collection("employees").document(id.value)
         

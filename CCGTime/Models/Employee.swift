@@ -13,9 +13,9 @@ struct Employee: Codable, Hashable {
     @DocumentID var id: String?
     var firstName: String
     var lastName: String
+    var name: String
     var wage: Double
     var department: String
-    var name: String
     
     private enum CodingKeys: String, CodingKey {
         case firstName
