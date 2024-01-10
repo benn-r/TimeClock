@@ -1,15 +1,10 @@
-//
 //  EmployeeTimecard.swift
 //  CCGTime
 //
 //  Created by ben on 7/17/22.
 //
 //  Each employee should have their own EmployeeTimecard struct
-//  for each shift they work, every day they work.
-//
-//  Rework may be need in future, as this solution is likely memory-intensive
-//  and hard to work with generally, as you need to find the relevant timecard
-//  for each shift.
+//  for each day they work.
 
 import Foundation
 import FirebaseFirestoreSwift
@@ -20,11 +15,16 @@ struct EmployeeTimecard: Codable, Hashable {
     
     @DocumentID var id: String?
     var employeeID: String
-    var timeIn: Date?
-    var timeOut: Date?
+    var employeeDept: String
+    var timecardEvents: [Date]
+    var exists: Bool
     
-    init(employeeID: String) {
-        self.employeeID = employeeID
+    init(id: String, dept: String) {
+        self.employeeID = id
+        self.employeeDept = dept
+        
+        self.exists = true
+        self.timecardEvents = []
         
         // ID variable is for FireStore storing and labeling purposes, same as employeeID
         self.id = employeeID
@@ -33,51 +33,10 @@ struct EmployeeTimecard: Codable, Hashable {
     /* Required code to make the EmployeeTimecard struct Codable and Hashable */
     
     private enum CodingKeys: String, CodingKey {
-        case timeIn
-        case timeOut
         case employeeID
-    }
-    
-    // getTimeIn
-    // Grabs timeIn variable from timecard, transforms
-    // it into "hh:mm:ss a" format, then returns result
-    
-    // Primary use is for displaying dates in app
-    
-    // TO-DO: Rename func?
-    // Current name may not be specific enough as it returns a modified timeIn var
-    
-    func getTimeIn() -> String {
-        var fancyTimeIn: String = ""
-        
-        if let time = timeIn {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "hh:mm:ss a"
-            fancyTimeIn = dateFormatter.string(from: time)
-        }
-        print("timeIn: \(fancyTimeIn)")
-        return fancyTimeIn
-    }
-    
-    // getTimeOut
-    // Grabs timeOut variable from timecard, transforms
-    // it into "hh:mm:ss a" format, then returns result
-    
-    // Primary use is for displaying dates in app
-    
-    // TO-DO: Rename func?
-    // Current name may not be specific enough as it returns a modified timeOut var
-    
-    func getTimeOut() -> String {
-        var fancyTimeOut: String = ""
-        
-        if let time = timeOut {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "hh:mm:ss a"
-            fancyTimeOut = dateFormatter.string(from: time)
-        }
-        print("timeOut: \(fancyTimeOut)")
-        return fancyTimeOut
+        case employeeDept
+        case timecardEvents
+        case exists
     }
     
     // getID
@@ -88,35 +47,16 @@ struct EmployeeTimecard: Codable, Hashable {
         return id
     }
     
-    // hasClockedIn
-    // Checks if timeIn variable is nil, if so
-    // then return false, otherwise return true.
-    //
-    // Primary use is to check whether an
-    // employee needs to clock in or clock out
+    // getDept
+    // Returns a copy of employeeDept var for the current timecard
     
-    func hasClockedIn() -> Bool {
-        if self.timeIn == nil {
-            return false
-        }
-        else {
-            return true
-        }
+    func getDept() -> String {
+        let dept: String = self.employeeDept
+        return dept
     }
     
-    // hasClockedOut
-    // Checks if timeOut variable is nil, if so
-    // then return false, otherwise return true.
-    //
-    // Primary use is to check whether an
-    // employee needs to clock in or clock out
-    
-    func hasClockedOut() -> Bool {
-        if self.timeOut == nil {
-            return false
-        }
-        else {
-            return true
-        }
+    func numOfEvents() -> Int {
+        let events: Int = self.timecardEvents.count
+        return events
     }
 }

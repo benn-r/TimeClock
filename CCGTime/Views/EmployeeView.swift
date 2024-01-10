@@ -16,11 +16,26 @@ struct EmployeeView: View {
     @ObservedObject var EmpModel = EmployeeModel()
     @ObservedObject var DeptModel = DepartmentModel()
     
+    // Function to check if employee is clocking into the correct department
+    func empCorrectDept(_ empId: NumbersOnly, _ selectedDept: String) -> Bool {
+        
+        let correctDept = EmpModel.getDept(id: empId)
+        
+        if (selectedDept == correctDept) {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
     var body: some View {
         NavigationView {
             ZStack {
                 VStack(alignment: .center, spacing: 35) {
 
+                    // TextField for employees to enter their ID number into
+                    // Value is saved under employeeNumber.value
                     TextField("Employee ID Number", text: $employeeNumber.value)
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.center)
@@ -63,32 +78,77 @@ struct EmployeeView: View {
                         .frame(height: 15)
                             
                     Button("Clock In") {
+                        
                         let empNum = employeeNumber
+                        let selectedDept = employeeDepartment
                                 
-                        if (employeeDepartment != "") {
+                        // Check if user selected a department
+                        if (employeeDepartment == "") {
+                            Alert.error("Please select a department.")
+                        }
+                        // Check if user entered an employee ID
+                        else if (empNum.value == "") {
+                            Alert.error("Please enter an ID number.")
+                        }
+                        // If both are true then continue
+                        else {
+                            
                             EmpModel.checkId(id: empNum) { idIsValid in
-                                        
-                                if (idIsValid) {
-                                    let currentTime = Time.fancyTime()
+                                
+                                // First check that employee and department
+                                // selection are correct
+                                var correctInfo: Bool = true
+                                
+                                if (!idIsValid) {
+                                    correctInfo = false
+                                    Alert.error("Employee ID Number \(empNum.value) does not exist.")
                                     
-                                    let timecard = EmployeeTimecard(employeeID: empNum.value)
-                                    EmpModel.clockIn(timecard: timecard, department: employeeDepartment)
-                                    EmpModel.get(id: empNum) { emp in
-                                        Alert.message("Success!", "\(emp.name) has succesfully clocked in at \(currentTime).")
+                                } else {
+                                    // Check if employee selected correct department
+                                    // Need to ensure that the id is valid first, or
+                                    // empCorrectDept() will throw a runtime error
+                                    
+                                    if (!empCorrectDept(empNum, selectedDept)) {
+                                        
+                                        correctInfo = false
+                                        
+                                        let empDept = EmpModel.getDept(id: empNum)
+                                        
+                                        Alert.error("Employee \(empNum.value) is assigned to department \(empDept), not \(selectedDept)")
                                     }
                                 }
-                                else {
-                                    if (empNum.value != "") {
-                                        Alert.error("Employee ID Number \(empNum.value) does not exist.")
-                                    }
-                                    else {
-                                        Alert.error("Please enter an ID number.")
+                                    
+                                    
+                                
+                                if (correctInfo) {
+                                    
+                                    EmpModel.isClockedIn(id: empNum.value, dept: selectedDept) { isClockedIn in
+
+                                        if (!isClockedIn) {
+                                            let currentTime = Time.fancyTime()
+                                            
+                                            //let timecard = EmployeeTimecard(id:empNum, dept:selectedDept)
+                                            
+                                            EmpModel.clockIn(id: empNum.value, department: employeeDepartment)
+                                            
+                                            EmpModel.get(id: empNum) { emp in
+                                                Alert.message("Success!", "\(emp.name) has succesfully clocked in at \(currentTime).")
+                                            }
+                                        }
+                                        else if (isClockedIn) {
+                                            
+                                            let currentTime = Time.fancyTime()
+                                            
+                                            
+                                            EmpModel.clockOut(id: empNum.value, department:selectedDept)
+                                            
+                                            EmpModel.get(id: empNum) { emp in
+                                                Alert.message("Success!", "\(emp.name) has succesfully clocked out at \(currentTime).")
+                                            }
+                                        }
                                     }
                                 }
                             }
-                        }
-                        else {
-                            Alert.error("Please select a department.")
                         }
                     }
                     .foregroundColor(Color.white)

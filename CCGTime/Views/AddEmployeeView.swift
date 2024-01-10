@@ -10,14 +10,19 @@ import SwiftUI
 struct AddEmployeeView: View {
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    
+    @State fileprivate var creationSuccessAlert = false
+    @State fileprivate var creationFailureAlert = false
+    
+    @State fileprivate var selectedDepartment = "Select A Department"
 
-    @State private var employeeFirstname = ""
-    @State private var employeeLastname = ""
-    @State private var employeeDepartment = ""
-    @ObservedObject private var employeeNumber = NumbersOnly()
-    @ObservedObject private var employeeWage = FloatsOnly()
-    @ObservedObject private var EmpModel = EmployeeModel()
-    @ObservedObject private var DeptModel = DepartmentModel()
+    @State fileprivate var employeeFirstname = ""
+    @State fileprivate var employeeLastname = ""
+    @State fileprivate var employeeDepartment = ""
+    @ObservedObject fileprivate var employeeNumber = NumbersOnly()
+    @ObservedObject fileprivate var employeeWage = FloatsOnly()
+    @ObservedObject fileprivate var EmpModel = EmployeeModel()
+    @ObservedObject fileprivate var DeptModel = DepartmentModel()
     
     func clearForm() {
         self.employeeFirstname = ""
@@ -55,12 +60,27 @@ struct AddEmployeeView: View {
                         
                         TextField("Input Hourly Wage", text: $employeeWage.value)
                             .keyboardType(.decimalPad)
-                        Picker("Select A Department", selection: $employeeDepartment) {
-                            ForEach(DeptModel.deptStrings, id: \.self) {
-                                Text($0)
+                        
+                        Menu(selectedDepartment) {
+                            ForEach(DeptModel.deptStrings, id: \.self) { item in
+                                Button(item) {
+                                    self.selectedDepartment = item
+                                    self.employeeDepartment = item
+                                }
                             }
                         }
+                        
+//                        Picker("Select A Department", selection: $employeeDepartment) {
+//                            ForEach(DeptModel.deptStrings, id: \.self) {
+//                                Text($0)
+//                            }
+//                        }
                     }
+                }
+                .alert("Employee Successfully Added", isPresented: $creationSuccessAlert) {
+                    // buttons
+                } message: {
+                    Text("Employee \(self.employeeFirstname) \(self.employeeLastname) was added with ID \(self.employeeNumber.value).")
                 }
             }
             .navigationTitle("Add New Employee")
@@ -79,10 +99,14 @@ struct AddEmployeeView: View {
                     Button {
                         if formIsValid() {
                             EmpModel.createNewEmployee(firstName: employeeFirstname, lastName: employeeLastname, id: employeeNumber, wage: employeeWage, department: employeeDepartment)
+                            
+                            creationSuccessAlert = true
+                            
                             clearForm()
                         }
                         else {
-                            Alert.error("Invalid Entry(s)")
+                            // TODO: (?) Display exactly which entries are invalid using a for loop
+                            creationFailureAlert = true
                         }
                     } label: {
                         Text("Submit")

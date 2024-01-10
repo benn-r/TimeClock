@@ -22,9 +22,10 @@ struct ManagerView: View {
     
     @State private var nextView: IdentifiableView? = nil
     @ObservedObject var DeptModel = DepartmentModel()
+    @ObservedObject var EmpModel = EmployeeModel()
     
     func generateReport() {
-        print("Report Generated")
+        print("Employees: ")
     }
     
     var body: some View {
@@ -34,6 +35,18 @@ struct ManagerView: View {
             VStack(alignment: .center) {
 
                 List {
+                    // Current Employees
+                    Section("Employees") {
+                        
+                        ForEach(EmpModel.employeeIdStrings, id: \.self) { item in
+                            
+                            let empName = EmpModel.getName(id: item, withId: false)
+                            
+                            NavigationLink(destination: EmployeeManagementView(employeeId: item)) {
+                                Text(empName)
+                            }
+                        }
+                    }
                     // Current Departments
                     Section("Current Departments") {
                         ForEach(DeptModel.deptStrings, id: \.self) { item in

@@ -14,14 +14,17 @@ class EmployeeModel: ObservableObject {
      * employeeNames structure - employeeNames[2201] = "Ben Rosario"
      */
     @Published var employees: [String:Employee] = [:]
-    let db: Firestore!
+    @Published var employeeNameStrings: [String] = []
+    @Published var employeeIdStrings: [String] = []
+    
+    fileprivate let db: Firestore!
     
     init() {
         db = Firestore.firestore()
         self.loadData()
     }
     
-    func loadData() {
+    private func loadData() {
         // Add listener for employees collection
         db.collection("employees").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
@@ -36,12 +39,26 @@ class EmployeeModel: ObservableObject {
                 let wage = document.get("wage") as! Double
                 let department = document.get("department") as! String
                 
+                
+                let fullName = "\(firstName) \(lastName)"
+                self.employeeNameStrings.append(fullName)
+                
+                self.employeeIdStrings.append(id)
+                
                 self.employees[id] = Employee(firstName: firstName, lastName: lastName,  wage: wage, department: department)
             }
         }
     }
     
-    func getName(id: String) -> String {
+    func getDept(id: NumbersOnly) -> String {
+        let empId = id.value
+        let employee = employees[empId]
+        let empDept: String = employee!.department
+        
+        return empDept
+    }
+    
+    func getName(id: String, withId: Bool) -> String {
         
         let employee = employees[id]
         var fullName: String = ""
@@ -49,7 +66,13 @@ class EmployeeModel: ObservableObject {
         if employee != nil {
             let firstName: String = employee!.firstName
             let lastName: String = employee!.lastName
-            fullName = "\(firstName) \(lastName) (\(id))"
+            
+            if (withId) {
+                fullName = "\(firstName) \(lastName) (\(id))"
+            }
+            else {
+                fullName = "\(firstName) \(lastName)"
+            }
         }
         else {
             fullName = "Employee \(id)"
@@ -72,7 +95,6 @@ class EmployeeModel: ObservableObject {
             switch result {
             case .success(let timecard):
                 // An EmployeeTimeCard was successfully initialized from the DocumentSnapshot.
-                print(timecard)
                 completion(timecard)
             case .failure(let error):
                 // An EmployeeTimeCard could not be initialized from the DocumentSnapshot.
@@ -81,30 +103,126 @@ class EmployeeModel: ObservableObject {
         }
     }
     
-    func clockIn(timecard: EmployeeTimecard, department: String) {
+    /**
+            Checks if the given person with the given ID and Department is clocked in on the current day
+     */
+    func isClockedIn(id: String, dept: String, completion: @escaping (Bool) -> Void) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd"
+        let todaysDateString = dateFormatter.string(from: Date.now)
+        
+        let timecardRef = db.collection("departments").document(dept).collection("dates").document(todaysDateString).collection("times").document(id)
+        
+        
+            
+        timecardRef.getDocument(as: EmployeeTimecard.self) { result in
+            switch result {
+            case .success(let timecard):
+                // Now, we need to check and see if the employee is clocked in
+                if ((timecard.timecardEvents.count) % 2 == 0) {
+                    completion(false)
+                }
+                else if ((timecard.timecardEvents.count) % 2 == 1) {
+                    completion(true)
+                }
+            case .failure(let error):
+                // An EmployeeTimeCard could not be initialized from the DocumentSnapshot.
+                print("Error decoding document: \(error.localizedDescription)")
+                // For now, assume employee is not clocked in
+                completion(false)
+                
+            }
+        }
+    }
+    
+    /*
+     As of now, func clockIn() will assume that the employee has already clocked out,
+     and will always generate a timeIn stamp 
+     That means it is important to check that the employee has already clocked out
+     before you call this function!
+     */
+    func clockIn(id: String, department: String) {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
         
         db.collection("departments").document(department).collection("dates").document(todaysDateString).setData(["visible" : true])
         
-        let docRef = db.collection("departments")
+        let timecardDocRef = db.collection("departments").document(department).collection("dates").document(todaysDateString).collection("times").document(id)
+        
+        timecardDocRef.getDocument(as: EmployeeTimecard.self) { result in
+            switch result {
+            case .success(let timecard):
+                if (timecard.exists) {
+                    print("Timecard already exists")
+                    timecardDocRef.updateData([
+                        "timecardEvents" : FieldValue.arrayUnion([Date.now])
+                    ])
+                } else {
+                    // This path might never be reached? describing as fatal error
+                    print("FATAL ERROR: timecard was instantiated but the exists attribute is false?")
+                }
+            case .failure(let error):
+                print("Expected Error: \(error)")
+                // This will ALWAYS have a failure case if the document does not exist yet
+                print("Timecard doesn't exist, creating one now...")
+                // Create new timecard and set data in Firebase
+                let newTimecard: EmployeeTimecard = EmployeeTimecard(id: id, dept: department)
+                
+                do {
+                    try timecardDocRef.setData(from: newTimecard)
+                    print("Set data from newTimecard")
+                } catch {
+                    print("Error occurred while trying to clock in: \(error)")
+                }
+                
+                // Update new timecard with clock in data (should be the first time event in the timecard)
+                timecardDocRef.updateData([
+                    "timecardEvents" : FieldValue.arrayUnion([Date.now])
+                ])
+                print("Updated timecard with clock in info")
+            }
+            
+        }
+        
+        // THIS DOESN'T WORK (i think)
+        // You have to instantiate an EmployeeTimecard object,
+        // but only if one is not already present
+        // If an EmployeeTimecard object already exists on timecardDocRef, then the below LOC should work
+        timecardDocRef.updateData([
+            "timecardEvents" : FieldValue.arrayUnion([Date.now])
+        ])
+    }
+    
+    /*
+     As of now, func clockOut() will assume that the employee has already clocked in,
+     and will always generate a timeOut stamp
+     That means it is important to check that the employee has already clocked in
+     before you call this function!
+     */
+    func clockOut(id: String, department: String) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd"
+        let todaysDateString = dateFormatter.string(from: Date.now)
+        
+        db.collection("departments").document(department).collection("dates").document(todaysDateString).setData(["visible" : true])
+        
+        let timecardDocRef = db.collection("departments")
                        .document(department)
                        .collection("dates")
                        .document(todaysDateString)
                        .collection("times")
-                       .document(timecard.id!)
+                       .document(id)
         
         do {
-            var timecard = timecard
-            timecard.timeIn = Date.now
             
-            try docRef.setData(from: timecard)
-        }
-        catch {
-            print("Error when trying to encode EmployeeTimeCard: \(error)")
+            timecardDocRef.updateData([
+                "timecardEvents" : FieldValue.arrayUnion([Date.now])
+            ])
         }
     }
+    
+    
 
     func createNewEmployee(firstName: String, lastName: String, id: NumbersOnly, wage: FloatsOnly, department: String) {
         
@@ -156,7 +274,7 @@ class EmployeeModel: ObservableObject {
     /**
     * Make sure to call checkId on the same id number BEFORE calling the get function
     * A failure case may occur otherwise
-    * 
+    * This is because the id you are trying to get may not exist
     */
     func get(id: NumbersOnly, completion: @escaping (_ employee: Employee) -> Void) {
         let docRef = db.collection("employees").document(id.value)

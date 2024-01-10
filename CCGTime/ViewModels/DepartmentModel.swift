@@ -19,11 +19,46 @@ class DepartmentModel: ObservableObject {
     @Published var archiveStrings = [String]()
     var archives = [Department]()
     
-    var db: Firestore!
+    fileprivate var db: Firestore!
     
     init() {
         db = Firestore.firestore()
         self.loadData()
+    }
+    
+    fileprivate func loadData() {
+        // Add listener for departments collection
+        db.collection("departments").addSnapshotListener() { (querySnapshot, error) in
+            guard error == nil else {
+                print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
+                return
+            }
+            self.departments = []
+            self.deptStrings = []
+            // there are querySnapshot!.documents.count documents in the spots snapshot
+            for document in querySnapshot!.documents {
+                let dept = Department(name: document.documentID)
+                self.departments.append(dept)
+                self.deptStrings.append(dept.name)
+            }
+        }
+        
+        // Add listener for archive collection
+        db.collection("archive").addSnapshotListener() { (querySnapshot, error) in
+            guard error == nil else {
+                print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
+                return
+            }
+            self.archives = []
+            self.archiveStrings = []
+            
+            // there are querySnapshot!.documents.count documents in the spots snapshot
+            for document in querySnapshot!.documents {
+                let dept = Department(name: document.documentID)
+                self.archives.append(dept)
+                self.archiveStrings.append(dept.name)
+            }
+        }
     }
     
     func simpleDate(_ date: String) -> String {
@@ -104,41 +139,6 @@ class DepartmentModel: ObservableObject {
         docRef.delete()
         //     ^ DOES NOT delete subcollections
         
-    }
-    
-    func loadData() {
-        // Add listener for departments collection
-        db.collection("departments").addSnapshotListener() { (querySnapshot, error) in
-            guard error == nil else {
-                print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
-                return
-            }
-            self.departments = []
-            self.deptStrings = []
-            // there are querySnapshot!.documents.count documents in the spots snapshot
-            for document in querySnapshot!.documents {
-                let dept = Department(name: document.documentID)
-                self.departments.append(dept)
-                self.deptStrings.append(dept.name)
-            }
-        }
-        
-        // Add listener for archive collection
-        db.collection("archive").addSnapshotListener() { (querySnapshot, error) in
-            guard error == nil else {
-                print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
-                return
-            }
-            self.archives = []
-            self.archiveStrings = []
-            
-            // there are querySnapshot!.documents.count documents in the spots snapshot
-            for document in querySnapshot!.documents {
-                let dept = Department(name: document.documentID)
-                self.archives.append(dept)
-                self.archiveStrings.append(dept.name)
-            }
-        }
     }
     
     func createDepartment(_ departmentName: String) {

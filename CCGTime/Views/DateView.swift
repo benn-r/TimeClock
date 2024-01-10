@@ -27,13 +27,18 @@ struct DateView: View {
         return VStack {
             List {
                 ForEach(timecardArray, id: \.self) { timecard in
-                    Section(EmpModel.getName(id: timecard.getID())) {
-                        if (!timecard.hasClockedOut()) {
-                            Text("Clock-In:\t\t\t\t \(timecard.getTimeIn())")
-                        }
-                        else {
-                            Text("Clock-In:\t\t\t\t \(timecard.getTimeIn())")
-                            Text("Clock-Out:\t\t\t\t \(timecard.getTimeOut())")
+                    Section(EmpModel.getName(id: timecard.getID(), withId: true)) {
+                        
+                        ForEach(0..<timecard.numOfEvents(), id: \.self) { index in
+                            // For both of the scenarios I use the Time.dateView function
+                            // to present the dates in the most readable format for users
+                            if (index % 2 == 0) {
+                                Text("**Clock-In:** \(Time.dateView(timecard.timecardEvents[index]))")
+                            } else {
+                                Text("**Clock-Out:** \(Time.dateView(timecard.timecardEvents[index]))")
+                                Text("**Shift Length:** \(Time.distanceBetween(first: timecard.timecardEvents[index - 1], last: timecard.timecardEvents[index]))")
+                                    .padding(.bottom)
+                            }
                         }
                     }
                     .headerProminence(.increased)
