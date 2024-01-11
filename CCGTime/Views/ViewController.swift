@@ -24,12 +24,6 @@ struct ViewController: View {
                         Text("Manager")
                 }
                     
-            AdminView()
-                .tabItem {
-                    Image(systemName: "eye.circle.fill")
-                        Text("Admin")
-                }
-                    
         }
     }
 }
