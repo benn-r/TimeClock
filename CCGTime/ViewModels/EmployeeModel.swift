@@ -19,6 +19,10 @@ class EmployeeModel: ObservableObject {
     
     fileprivate let db: Firestore!
     
+    let staticDate: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
+    var lastTimeClocked: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
+    var lastIdClocked: String = ""
+    
     init() {
         db = Firestore.firestore()
         self.loadData()
@@ -107,6 +111,7 @@ class EmployeeModel: ObservableObject {
             Checks if the given person with the given ID and Department is clocked in on the current day
      */
     func isClockedIn(id: String, dept: String, completion: @escaping (Bool) -> Void) {
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
@@ -142,6 +147,33 @@ class EmployeeModel: ObservableObject {
      before you call this function!
      */
     func clockIn(id: String, department: String) {
+        
+        if (lastTimeClocked == staticDate && lastIdClocked == "" ) {
+            lastTimeClocked = Date.init()
+            lastIdClocked = id
+        }
+        else if (lastIdClocked != id) {
+            let elapsed = Date.now.timeIntervalSince(lastTimeClocked)
+            let duration = Int(elapsed)
+            
+            if (duration < 10) {
+                Alert.message("Error", "Too many attempts. Please try again in a moment.")
+                return
+            }
+            
+        }
+        else {
+            let elapsed = Date.now.timeIntervalSince(lastTimeClocked)
+            let duration = Int(elapsed)
+            
+            if (duration < 61) {
+                let cooldownTime = String(61 - duration)
+                Alert.message("Error", "ID \(id) has recently clocked out.\nPlease wait \(cooldownTime) seconds to clock in.")
+                return
+            }
+            
+        }
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
@@ -152,6 +184,7 @@ class EmployeeModel: ObservableObject {
         
         timecardDocRef.getDocument(as: EmployeeTimecard.self) { result in
             switch result {
+                
             case .success(let timecard):
                 if (timecard.exists) {
                     print("Timecard already exists")
@@ -162,6 +195,7 @@ class EmployeeModel: ObservableObject {
                     // This path might never be reached? describing as fatal error
                     print("FATAL ERROR: timecard was instantiated but the exists attribute is false?")
                 }
+                
             case .failure(let error):
                 print("Expected Error: \(error)")
                 // This will ALWAYS have a failure case if the document does not exist yet
@@ -181,17 +215,10 @@ class EmployeeModel: ObservableObject {
                     "timecardEvents" : FieldValue.arrayUnion([Date.now])
                 ])
                 print("Updated timecard with clock in info")
-            }
+                
+            } // end switch case
             
         }
-        
-        // THIS DOESN'T WORK (i think)
-        // You have to instantiate an EmployeeTimecard object,
-        // but only if one is not already present
-        // If an EmployeeTimecard object already exists on timecardDocRef, then the below LOC should work
-        timecardDocRef.updateData([
-            "timecardEvents" : FieldValue.arrayUnion([Date.now])
-        ])
     }
     
     /*
@@ -201,6 +228,33 @@ class EmployeeModel: ObservableObject {
      before you call this function!
      */
     func clockOut(id: String, department: String) {
+        
+        if (lastTimeClocked == staticDate && lastIdClocked == "" ) {
+            lastTimeClocked = Date.init()
+            lastIdClocked = id
+        }
+        else if (lastIdClocked != id) {
+            let elapsed = Date.now.timeIntervalSince(lastTimeClocked)
+            let duration = Int(elapsed)
+            
+            if (duration < 10) {
+                Alert.message("Error", "Too many attempts. Please try again in a moment.")
+                return
+            }
+            
+        }
+        else {
+            
+            let elapsed = Date.now.timeIntervalSince(lastTimeClocked)
+            let duration = Int(elapsed)
+            if (duration < 61) {
+                let cooldownTime = String(61 - duration)
+                Alert.message("Error", "ID \(id) has recently clocked in.\nPlease wait \(cooldownTime) seconds to clock out.")
+                return
+            }
+            
+        }
+        
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
