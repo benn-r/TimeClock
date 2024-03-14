@@ -214,7 +214,8 @@ class EmployeeModel: ObservableObject {
                 timecardDocRef.updateData([
                     "timecardEvents" : FieldValue.arrayUnion([Date.now])
                 ])
-                print("Updated timecard with clock in info")
+                self.lastTimeClocked = Date.init()
+                self.lastIdClocked = id
                 
             } // end switch case
             
@@ -273,6 +274,8 @@ class EmployeeModel: ObservableObject {
             timecardDocRef.updateData([
                 "timecardEvents" : FieldValue.arrayUnion([Date.now])
             ])
+            self.lastTimeClocked = Date.init()
+            self.lastIdClocked = id
         }
     }
     
