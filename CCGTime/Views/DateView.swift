@@ -51,6 +51,6 @@ struct DateView: View {
 
 struct DateView_Previews: PreviewProvider {
     static var previews: some View {
-        DateView(dept: "MargaritaVille", date: "20220715")
+        DateView(dept: "Alphabet", date: "03052024")
     }
 }

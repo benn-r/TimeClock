@@ -53,6 +53,6 @@ struct EmployeeManagementView: View {
 
 struct EmployeeManagementView_Previews: PreviewProvider {
     static var previews: some View {
-        EmployeeManagementView(employeeId: "0221")
+        EmployeeManagementView(employeeId: "0155")
     }
 }

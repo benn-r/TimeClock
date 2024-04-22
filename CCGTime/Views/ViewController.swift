@@ -10,29 +10,33 @@ import Combine
 
 struct ViewController: View {
     
+    var user = User()
+    
     var body: some View {
-        TabView {
-            EmployeeView()
-                .tabItem {
-                    Image(systemName: "clock")
-                        Text("Clock In")
-                }
-            
-            ManagerView()
-                .tabItem {
-                    Image(systemName: "person.crop.circle.fill")
-                        Text("Manager")
-                }
-                    
+        if (user.isLoggedIn()) {
+            TabView {
+                EmployeeView()
+                    .tabItem {
+                        Image(systemName: "clock")
+                            Text("Clock In")
+                    }
+                
+                ManagerView()
+                    .tabItem {
+                        Image(systemName: "person.crop.circle.fill")
+                            Text("Manager")
+                    }
+                        
+            }
+        } else {
+            LoginView()
         }
     }
 }
     
 
-struct ViewController_Previews: PreviewProvider {
-    static var previews: some View {
-        ViewController()
-    }
+#Preview {
+    ViewController()
 }
 
 // NumbersOnly

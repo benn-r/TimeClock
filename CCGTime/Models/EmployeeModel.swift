@@ -156,7 +156,7 @@ class EmployeeModel: ObservableObject {
             let elapsed = Date.now.timeIntervalSince(lastTimeClocked)
             let duration = Int(elapsed)
             
-            if (duration < 10) {
+            if (duration < 5) {
                 Alert.message("Error", "Too many attempts. Please try again in a moment.")
                 return
             }
@@ -238,7 +238,7 @@ class EmployeeModel: ObservableObject {
             let elapsed = Date.now.timeIntervalSince(lastTimeClocked)
             let duration = Int(elapsed)
             
-            if (duration < 10) {
+            if (duration < 5) {
                 Alert.message("Error", "Too many attempts. Please try again in a moment.")
                 return
             }

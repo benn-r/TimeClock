@@ -68,14 +68,14 @@ struct ManagerView: View {
                         ForEach(DeptModel.archiveStrings, id: \.self) { item in
                             NavigationLink(destination: DepartmentView(dept: item)) {
                                 Text(item)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         Button("Delete") {
                                             currentDept = item
                                             showingDeleteAlert = true
                                         }
                                         .tint(.red)
                                     }
-                                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
                                         Button("Unarchive") {
                                             currentDept = item
                                             showingUnarchiveAlert = true
