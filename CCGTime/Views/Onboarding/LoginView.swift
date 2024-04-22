@@ -60,7 +60,7 @@ struct LoginView: View {
                 }
                 
                 Spacer()
-                    .frame(height: -15)
+                    .frame(height: 1)
                 
                 Button("Log In") {
                     user.login(user: username, pass: password)
