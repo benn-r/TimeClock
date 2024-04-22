@@ -153,6 +153,13 @@ struct ManagerView: View {
                         } label: {
                             Label("Add New Employee", systemImage: "person.badge.plus")
                         }
+                        
+                        Button {
+                            self.nextView = IdentifiableView(view: AnyView(AccountView()))
+                        } label: {
+                            Label("Account Settings", systemImage: "gearshape.fill")
+                        }
+                        
                     }
                 }
             }

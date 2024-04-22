@@ -35,4 +35,10 @@ class User: ObservableObject {
         })
     }
     
+    func getEmail() -> String {
+        var email:String = Auth.auth().currentUser?.email ?? "No email"
+        
+        return email
+    }
+    
 }
