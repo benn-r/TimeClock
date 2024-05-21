@@ -10,10 +10,17 @@ import SwiftUI
 
 struct EmployeeManagementView: View {
     
-    @ObservedObject var EmpModel = EmployeeModel()
+    @ObservedObject var session: SessionStore
+    @ObservedObject var EmpModel: EmployeeModel
     var employeeId: String
     
-    
+    init(session: SessionStore, employeeId: String) {
+        self.employeeId = employeeId
+        
+        self.session = session
+        EmpModel = EmployeeModel(session: session)
+        
+    }
     
     var body: some View {
         
@@ -53,6 +60,6 @@ struct EmployeeManagementView: View {
 
 struct EmployeeManagementView_Previews: PreviewProvider {
     static var previews: some View {
-        EmployeeManagementView(employeeId: "0155")
+        EmployeeManagementView(session: SessionStore(), employeeId: "0155")
     }
 }

@@ -10,18 +10,18 @@ import Combine
 
 struct ViewController: View {
     
-    @State var user = User()
+    @StateObject var session = SessionStore()
     
     var body: some View {
-        if (user.isLoggedIn) {
+        if (session.session != nil) {
             TabView {
-                EmployeeView()
+                EmployeeView(session: session)
                     .tabItem {
                         Image(systemName: "clock")
                             Text("Clock In")
                     }
                 
-                ManagerView()
+                ManagerView(session: session)
                     .tabItem {
                         Image(systemName: "person.crop.circle.fill")
                             Text("Manager")
@@ -29,7 +29,7 @@ struct ViewController: View {
                         
             }
         } else {
-            LoginView()
+            LoginView(session: session)
         }
     }
 }

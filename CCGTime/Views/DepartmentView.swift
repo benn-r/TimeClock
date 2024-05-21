@@ -9,9 +9,17 @@ import SwiftUI
 
 struct DepartmentView: View {
     
-    @ObservedObject var DeptModel = DepartmentModel()
-    let dept: String
+    @ObservedObject var DeptModel : DepartmentModel
     @State var dateArray: [String] = []
+    let dept: String
+    
+    var session: SessionStore
+    
+    init(session: SessionStore, dept: String) {
+        self.dept = dept
+        self.session = session
+        DeptModel = DepartmentModel(session: session)
+    }
     
     var body: some View {
         
@@ -23,7 +31,7 @@ struct DepartmentView: View {
             
             List {
                 ForEach(dateArray, id: \.self) { item in
-                    NavigationLink(destination: DateView(dept: dept, date: item)) {
+                    NavigationLink(destination: DateView(session: session, dept: dept, date: item)) {
                         Text(DeptModel.fancyDate(item))
                     }
                 }
@@ -37,6 +45,6 @@ struct DepartmentView: View {
 
 struct DepartmentView_Previews: PreviewProvider {
     static var previews: some View {
-        DepartmentView(dept: "MargaritaVille")
+        DepartmentView(session: SessionStore(), dept: "MargaritaVille")
     }
 }

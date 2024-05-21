@@ -9,11 +9,13 @@ import SwiftUI
 
 struct SignupView: View {
     
-    @State var username: String = ""
+    @State var firstName: String = ""
+    @State var lastName: String = ""
+    @State var email: String = ""
     @State var password: String = ""
     @State var confirmpassword: String = ""
     
-    @ObservedObject var user = User()
+    @StateObject var session : SessionStore
     
     var body: some View {
         VStack(alignment: .center, spacing: 25, content: {
@@ -29,7 +31,25 @@ struct SignupView: View {
                         .bold()
                         .foregroundStyle(Color.white)
                     
-                    TextField("Email", text: $username)
+                    TextField("First Name", text: $firstName)
+                        .frame(width: 200, height: 30)
+                        .keyboardType(.default)
+                        .background(
+                            RoundedRectangle(cornerRadius: 5)
+                                .strokeBorder(.blue, lineWidth: 2.25)
+                                .scaleEffect(1.25)
+                        )
+                    
+                    TextField("Last Name", text: $lastName)
+                        .frame(width: 200, height: 30)
+                        .keyboardType(.default)
+                        .background(
+                            RoundedRectangle(cornerRadius: 5)
+                                .strokeBorder(.blue, lineWidth: 2.25)
+                                .scaleEffect(1.25)
+                        )
+                    
+                    TextField("Email", text: $email)
                         .frame(width: 200, height: 30)
                         .keyboardType(.emailAddress)
                         .background(
@@ -65,8 +85,9 @@ struct SignupView: View {
             }
             
             Button("Create Account") {
+                // TO-DO: Check ALL fields before calling signUp function
                 if (confirmpassword == password) {
-                    user.createAccount(user: username, pass: password)
+                    session.signUp(email: email, password: password, firstName: firstName, lastName: lastName)
                 } else {
                     Alert.error("Passwords do not match!")
                 }
@@ -83,5 +104,5 @@ struct SignupView: View {
 }
 
 #Preview {
-    SignupView()
+    SignupView(session: SessionStore())
 }

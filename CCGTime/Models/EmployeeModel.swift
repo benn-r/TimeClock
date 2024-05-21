@@ -13,6 +13,7 @@ class EmployeeModel: ObservableObject {
     /*
      * employeeNames structure - employeeNames[2201] = "Ben Rosario"
      */
+    
     @Published var employees: [String:Employee] = [:]
     @Published var employeeNameStrings: [String] = []
     @Published var employeeIdStrings: [String] = []
@@ -23,14 +24,14 @@ class EmployeeModel: ObservableObject {
     var lastTimeClocked: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
     var lastIdClocked: String = ""
     
-    init() {
+    init(session: SessionStore) {
         db = Firestore.firestore()
-        self.loadData()
+        self.loadData(session: session)
     }
     
-    private func loadData() {
+    private func loadData(session: SessionStore) {
         // Add listener for employees collection
-        db.collection("employees").addSnapshotListener() { (querySnapshot, error) in
+        db.collection("users").document(session.session!.uid).collection("employees").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
                 print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
                 return
@@ -85,16 +86,18 @@ class EmployeeModel: ObservableObject {
         return fullName
     }
     
-    func fetchTimecards(department: String, completion: @escaping (_ timecard: EmployeeTimecard) -> Void) {
+    func fetchTimecards(session: SessionStore, department: String, completion: @escaping (_ timecard: EmployeeTimecard) -> Void) {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
         
-        let docRef = db.collection("departments")
-                       .document(department)
-                       .collection("dates")
-                       .document(todaysDateString)
-      
+        let docRef = db.collection("users")
+            .document(session.session!.uid)
+            .collection("departments")
+            .document(department)
+            .collection("dates")
+            .document(todaysDateString)
+        
         docRef.getDocument(as: EmployeeTimecard.self) { result in
             switch result {
             case .success(let timecard):
@@ -108,18 +111,25 @@ class EmployeeModel: ObservableObject {
     }
     
     /**
-            Checks if the given person with the given ID and Department is clocked in on the current day
+     Checks if the given person with the given ID and Department is clocked in on the current day
      */
-    func isClockedIn(id: String, dept: String, completion: @escaping (Bool) -> Void) {
+    func isClockedIn(session: SessionStore, id: String, dept: String, completion: @escaping (Bool) -> Void) {
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
         
-        let timecardRef = db.collection("departments").document(dept).collection("dates").document(todaysDateString).collection("times").document(id)
+        let timecardRef = db.collection("users")
+            .document(session.session!.uid)
+            .collection("departments")
+            .document(dept)
+            .collection("dates")
+            .document(todaysDateString)
+            .collection("times")
+            .document(id)
         
         
-            
+        
         timecardRef.getDocument(as: EmployeeTimecard.self) { result in
             switch result {
             case .success(let timecard):
@@ -142,11 +152,11 @@ class EmployeeModel: ObservableObject {
     
     /*
      As of now, func clockIn() will assume that the employee has already clocked out,
-     and will always generate a timeIn stamp 
+     and will always generate a timeIn stamp
      That means it is important to check that the employee has already clocked out
      before you call this function!
      */
-    func clockIn(id: String, department: String) {
+    func clockIn(session: SessionStore, id: String, department: String) {
         
         if (lastTimeClocked == staticDate && lastIdClocked == "" ) {
             lastTimeClocked = Date.init()
@@ -178,9 +188,21 @@ class EmployeeModel: ObservableObject {
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
         
-        db.collection("departments").document(department).collection("dates").document(todaysDateString).setData(["visible" : true])
+        db.collection("users")
+            .document(session.session!.uid)
+            .collection("departments")
+            .document(department)
+            .collection("dates")
+            .document(todaysDateString).setData(["visible" : true])
         
-        let timecardDocRef = db.collection("departments").document(department).collection("dates").document(todaysDateString).collection("times").document(id)
+        let timecardDocRef = db.collection("users")
+            .document(session.session!.uid)
+            .collection("departments")
+            .document(department)
+            .collection("dates")
+            .document(todaysDateString)
+            .collection("times")
+            .document(id)
         
         timecardDocRef.getDocument(as: EmployeeTimecard.self) { result in
             switch result {
@@ -228,7 +250,7 @@ class EmployeeModel: ObservableObject {
      That means it is important to check that the employee has already clocked in
      before you call this function!
      */
-    func clockOut(id: String, department: String) {
+    func clockOut(session: SessionStore, id: String, department: String) {
         
         if (lastTimeClocked == staticDate && lastIdClocked == "" ) {
             lastTimeClocked = Date.init()
@@ -260,14 +282,21 @@ class EmployeeModel: ObservableObject {
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
         
-        db.collection("departments").document(department).collection("dates").document(todaysDateString).setData(["visible" : true])
+        db.collection("users")
+            .document(session.session!.uid)
+            .collection("departments")
+            .document(department)
+            .collection("dates")
+            .document(todaysDateString).setData(["visible" : true])
         
-        let timecardDocRef = db.collection("departments")
-                       .document(department)
-                       .collection("dates")
-                       .document(todaysDateString)
-                       .collection("times")
-                       .document(id)
+        let timecardDocRef = db.collection("users")
+            .document(session.session!.uid)
+            .collection("departments")
+            .document(department)
+            .collection("dates")
+            .document(todaysDateString)
+            .collection("times")
+            .document(id)
         
         do {
             
@@ -280,10 +309,13 @@ class EmployeeModel: ObservableObject {
     }
     
     
-
-    func createNewEmployee(firstName: String, lastName: String, id: NumbersOnly, wage: FloatsOnly, department: String) {
+    
+    func createNewEmployee(session: SessionStore, firstName: String, lastName: String, id: NumbersOnly, wage: FloatsOnly, department: String) {
         
-        let docRef = db.collection("employees").document(id.value)
+        let docRef = db.collection("users")
+            .document(session.session!.uid)
+            .collection("employees")
+            .document(id.value)
         
         do {
             let employee = Employee(
@@ -296,20 +328,23 @@ class EmployeeModel: ObservableObject {
             try docRef.setData(from: employee)
         }
         catch {
-          print("Error when trying to encode Employee: \(error)")
+            print("Error when trying to encode Employee: \(error)")
         }
     }
     
-    func checkId(id: NumbersOnly, completion: @escaping (_ idExists: Bool) -> Void) {
+    func checkId(session: SessionStore, id: NumbersOnly, completion: @escaping (_ idExists: Bool) -> Void) {
         
         var idIsValid: Bool = false;
-
+        
         if (id.value == "") {
             idIsValid = false
             completion(idIsValid)
         }
         else {
-            let docRef = db.collection("employees").document(id.value)
+            let docRef = db.collection("users")
+                .document(session.session!.uid)
+                .collection("employees")
+                .document(id.value)
             //
             // Firestore Docs example getDocument function
             // https://firebase.google.com/docs/firestore/query-data/get-data#swift
@@ -329,12 +364,12 @@ class EmployeeModel: ObservableObject {
         }
     }
     /**
-    * Make sure to call checkId on the same id number BEFORE calling the get function
-    * A failure case may occur otherwise
-    * This is because the id you are trying to get may not exist
-    */
-    func get(id: NumbersOnly, completion: @escaping (_ employee: Employee) -> Void) {
-        let docRef = db.collection("employees").document(id.value)
+     * Make sure to call checkId on the same id number BEFORE calling the get function
+     * A failure case may occur otherwise
+     * This is because the id you are trying to get may not exist
+     */
+    func get(session: SessionStore, id: NumbersOnly, completion: @escaping (_ employee: Employee) -> Void) {
+        let docRef = db.collection("users").document(session.session!.uid).collection("employees").document(id.value)
         
         docRef.getDocument(as: Employee.self) { result in
             switch result {
@@ -348,16 +383,4 @@ class EmployeeModel: ObservableObject {
             }
         }
     }
-    
-//    func createNewEmployee(firstName: String, lastName: String, employeeNumber: NumbersOnly, wage: FloatsOnly, department: String) {
-//
-//        db.collection("employees").document(employeeNumber.value)
-//            .setData([
-//                "firstName" : firstName,
-//                "lastName" : lastName,
-//                "wage" : Double(wage.value)!,
-//                "department" : department
-//            ])
-//
-//    }
 }

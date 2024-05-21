@@ -9,6 +9,8 @@ import SwiftUI
 
 struct AddEmployeeView: View {
     
+    var session: SessionStore
+    
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     @State fileprivate var creationSuccessAlert = false
@@ -21,8 +23,15 @@ struct AddEmployeeView: View {
     @State fileprivate var employeeDepartment = ""
     @ObservedObject fileprivate var employeeNumber = NumbersOnly()
     @ObservedObject fileprivate var employeeWage = FloatsOnly()
-    @ObservedObject fileprivate var EmpModel = EmployeeModel()
-    @ObservedObject fileprivate var DeptModel = DepartmentModel()
+    @ObservedObject fileprivate var DeptModel : DepartmentModel
+    
+    @ObservedObject fileprivate var EmpModel : EmployeeModel
+    
+    init(session: SessionStore) {
+        self.session = session
+        EmpModel = EmployeeModel(session: session)
+        DeptModel = DepartmentModel(session: session)
+    }
     
     func clearForm() {
         self.employeeFirstname = ""
@@ -69,18 +78,12 @@ struct AddEmployeeView: View {
                                 }
                             }
                         }
-                        
-//                        Picker("Select A Department", selection: $employeeDepartment) {
-//                            ForEach(DeptModel.deptStrings, id: \.self) {
-//                                Text($0)
-//                            }
-//                        }
                     }
                 }
-                .alert("Employee Successfully Added", isPresented: $creationSuccessAlert) {
+                .alert("Success!", isPresented: $creationSuccessAlert) {
                     // buttons
                 } message: {
-                    Text("Employee \(self.employeeFirstname) \(self.employeeLastname) was added with ID \(self.employeeNumber.value).")
+                    Text("Employee was added.")
                 }
             }
             .navigationTitle("Add New Employee")
@@ -98,7 +101,7 @@ struct AddEmployeeView: View {
                     
                     Button {
                         if formIsValid() {
-                            EmpModel.createNewEmployee(firstName: employeeFirstname, lastName: employeeLastname, id: employeeNumber, wage: employeeWage, department: employeeDepartment)
+                            EmpModel.createNewEmployee(session: session, firstName: employeeFirstname, lastName: employeeLastname, id: employeeNumber, wage: employeeWage, department: employeeDepartment)
                             
                             creationSuccessAlert = true
                             
@@ -120,6 +123,6 @@ struct AddEmployeeView: View {
 
 struct AddEmployeeView_Previews: PreviewProvider {
     static var previews: some View {
-        AddEmployeeView()
+        AddEmployeeView(session: SessionStore())
     }
 }

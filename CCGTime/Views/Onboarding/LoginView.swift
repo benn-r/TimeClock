@@ -9,8 +9,9 @@ import SwiftUI
 
 struct LoginView: View {
     
-    @ObservedObject var user = User()
-    @State var username = ""
+    @StateObject var session : SessionStore
+    
+    @State var email = ""
     @State var password = ""
     
     
@@ -34,7 +35,7 @@ struct LoginView: View {
                         Spacer()
                             .frame(height: 50)
                         
-                        TextField("Email", text: $username)
+                        TextField("Email", text: $email)
                             .frame(width: 200, height: 30)
                             .keyboardType(.emailAddress)
                             .background(
@@ -63,7 +64,7 @@ struct LoginView: View {
                     .frame(height: 1)
                 
                 Button("Log In") {
-                    user.login(user: username, pass: password)
+                    session.signIn(email: email, password: password)
                 }
                 .foregroundColor(Color.white)
                 .background(
@@ -80,7 +81,7 @@ struct LoginView: View {
                     
                     Text("Don't have an account?")
                     
-                    NavigationLink(destination: SignupView()) {
+                    NavigationLink(destination: SignupView(session: session)) {
                             Text("Sign up")
                                 .underline()
                                 .foregroundColor(Color.blue)
@@ -95,5 +96,5 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView()
+    LoginView(session: SessionStore())
 }

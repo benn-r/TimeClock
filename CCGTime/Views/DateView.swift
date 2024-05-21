@@ -10,12 +10,22 @@ import OrderedCollections
 
 struct DateView: View {
     
-    let dept: String
-    let date: String
-    let DeptModel = DepartmentModel()
-    let EmpModel = EmployeeModel()
+    var session: SessionStore
+    var dept: String
+    var date: String
+    var DeptModel : DepartmentModel
+    var EmpModel : EmployeeModel
     @State var timecardArray: [EmployeeTimecard] = []
     @State var empName: String = ""
+    
+    init(session: SessionStore, dept: String, date: String) {
+        self.dept = dept
+        self.date = date
+        
+        self.session = session
+        EmpModel = EmployeeModel(session: session)
+        DeptModel = DepartmentModel(session: session)
+    }
     
     var body: some View {
         
@@ -51,6 +61,6 @@ struct DateView: View {
 
 struct DateView_Previews: PreviewProvider {
     static var previews: some View {
-        DateView(dept: "Alphabet", date: "03052024")
+        DateView(session: SessionStore(), dept: "Alphabet", date: "03052024")
     }
 }

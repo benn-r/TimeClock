@@ -15,17 +15,29 @@ struct IdentifiableView: Identifiable {
 
 struct ManagerView: View {
     
+    var session : SessionStore
+    
+    init(session: SessionStore) {
+        self.session = session
+        EmpModel = EmployeeModel(session: session)
+        DeptModel = DepartmentModel(session: session)
+    }
+    
+    
+    
     @State private var showingArchiveAlert = false
     @State private var showingUnarchiveAlert = false
     @State private var showingDeleteAlert = false
     @State private var currentDept: String = ""
     
     @State private var nextView: IdentifiableView? = nil
-    @ObservedObject var DeptModel = DepartmentModel()
-    @ObservedObject var EmpModel = EmployeeModel()
+    @ObservedObject var DeptModel: DepartmentModel
+    @ObservedObject var EmpModel : EmployeeModel
+    
     
     func generateReport() {
-        print("Employees: ")
+        //print("Employees: ")
+        print(session.session?.uid)
     }
     
     var body: some View {
@@ -42,7 +54,7 @@ struct ManagerView: View {
                             
                             let empName = EmpModel.getName(id: item, withId: false)
                             
-                            NavigationLink(destination: EmployeeManagementView(employeeId: item)) {
+                            NavigationLink(destination: EmployeeManagementView(session: session, employeeId: item)) {
                                 Text(empName)
                             }
                         }
@@ -51,7 +63,7 @@ struct ManagerView: View {
                     Section("Current Departments") {
                         ForEach(DeptModel.deptStrings, id: \.self) { item in
                             
-                            NavigationLink(destination: DepartmentView(dept: item)) {
+                            NavigationLink(destination: DepartmentView(session: session, dept: item)) {
                                 Text(item)
                                     .swipeActions(allowsFullSwipe: false) {
                                         Button("Archive") {
@@ -66,7 +78,7 @@ struct ManagerView: View {
                     // Archived Departments
                     Section("Archived Departments") {
                         ForEach(DeptModel.archiveStrings, id: \.self) { item in
-                            NavigationLink(destination: DepartmentView(dept: item)) {
+                            NavigationLink(destination: DepartmentView(session: session, dept: item)) {
                                 Text(item)
                                     .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                         Button("Delete") {
@@ -137,7 +149,7 @@ struct ManagerView: View {
                     Menu("Options") {
                         
                         Button {
-                            Alert.newDept()
+                            Alert.newDept(session: session)
                         } label: {
                             Label("Create New Department", systemImage: "note.text.badge.plus")
                         }
@@ -149,13 +161,13 @@ struct ManagerView: View {
                         }
                         
                         Button {
-                            self.nextView = IdentifiableView(view: AnyView(AddEmployeeView()))
+                            self.nextView = IdentifiableView(view: AnyView(AddEmployeeView(session: session)))
                         } label: {
                             Label("Add New Employee", systemImage: "person.badge.plus")
                         }
                         
                         Button {
-                            self.nextView = IdentifiableView(view: AnyView(AccountView()))
+                            self.nextView = IdentifiableView(view: AnyView(AccountView(session: session)))
                         } label: {
                             Label("Account Settings", systemImage: "gearshape.fill")
                         }
@@ -169,6 +181,6 @@ struct ManagerView: View {
 
 struct ManagerialView_Previews: PreviewProvider {
     static var previews: some View {
-        ManagerView()
+        ManagerView(session: SessionStore())
     }
 }

@@ -9,12 +9,22 @@ import SwiftUI
 
 struct EmployeeView: View {
     
+    @ObservedObject var session : SessionStore
+    
     @State var employeeDepartment = ""
     @State var selectedDepartment = "Select A Department"
     @FocusState var isInputActive: Bool
     @ObservedObject var employeeNumber = NumbersOnly()
-    @ObservedObject var EmpModel = EmployeeModel()
-    @ObservedObject var DeptModel = DepartmentModel()
+    @ObservedObject var DeptModel : DepartmentModel
+    @ObservedObject var EmpModel : EmployeeModel
+    
+    init(session: SessionStore) {
+        self.session = session
+        EmpModel = EmployeeModel(session: session)
+        DeptModel = DepartmentModel(session: session)
+    }
+    
+    
     
     // Function to check if employee is clocking into the correct department
     func empCorrectDept(_ empId: NumbersOnly, _ selectedDept: String) -> Bool {
@@ -93,7 +103,7 @@ struct EmployeeView: View {
                         // If both are true then continue
                         else {
                             
-                            EmpModel.checkId(id: empNum) { idIsValid in
+                            EmpModel.checkId(session: session, id: empNum) { idIsValid in
                                 
                                 // First check that employee and department
                                 // selection are correct
@@ -122,17 +132,17 @@ struct EmployeeView: View {
                                 
                                 if (correctInfo) {
                                     
-                                    EmpModel.isClockedIn(id: empNum.value, dept: selectedDept) { isClockedIn in
+                                    EmpModel.isClockedIn(session: session, id: empNum.value, dept: selectedDept) { isClockedIn in
 
                                         if (!isClockedIn) {
                                             let currentTime = Time.fancyTime()
                                             
                                             //let timecard = EmployeeTimecard(id:empNum, dept:selectedDept)
                                             
-                                            EmpModel.clockIn(id: empNum.value, department: employeeDepartment)
+                                            EmpModel.clockIn(session: session, id: empNum.value, department: employeeDepartment)
                                             
-                                            EmpModel.get(id: empNum) { emp in
-                                                Alert.message("Success!", "\(emp.name) has succesfully clocked in at \(currentTime).")
+                                            EmpModel.get(session: session, id: empNum) { emp in
+                                                Alert.message("Clocked In", "\(emp.name) has clocked in at \(currentTime).")
                                             }
                                         }
                                         else if (isClockedIn) {
@@ -140,10 +150,10 @@ struct EmployeeView: View {
                                             let currentTime = Time.fancyTime()
                                             
                                             
-                                            EmpModel.clockOut(id: empNum.value, department:selectedDept)
+                                            EmpModel.clockOut(session: session, id: empNum.value, department:selectedDept)
                                             
-                                            EmpModel.get(id: empNum) { emp in
-                                                Alert.message("Success!", "\(emp.name) has succesfully clocked out at \(currentTime).")
+                                            EmpModel.get(session: session, id: empNum) { emp in
+                                                Alert.message("Clocked Out", "\(emp.name) has clocked out at \(currentTime).")
                                             }
                                         }
                                     }
@@ -168,6 +178,6 @@ struct EmployeeView: View {
 
 struct EmployeeView_Previews: PreviewProvider {
     static var previews: some View {
-        EmployeeView()
+        EmployeeView(session: SessionStore())
     }
 }

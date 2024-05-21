@@ -21,14 +21,17 @@ class DepartmentModel: ObservableObject {
     
     fileprivate var db: Firestore!
     
-    init() {
+    var session: SessionStore
+    
+    init(session: SessionStore) {
         db = Firestore.firestore()
+        self.session = session
         self.loadData()
     }
     
     fileprivate func loadData() {
         // Add listener for departments collection
-        db.collection("departments").addSnapshotListener() { (querySnapshot, error) in
+        db.collection("users").document(session.session!.uid).collection("departments").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
                 print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
                 return
@@ -44,7 +47,7 @@ class DepartmentModel: ObservableObject {
         }
         
         // Add listener for archive collection
-        db.collection("archive").addSnapshotListener() { (querySnapshot, error) in
+        db.collection("users").document(session.session!.uid).collection("archive").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
                 print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
                 return
@@ -88,12 +91,14 @@ class DepartmentModel: ObservableObject {
         print("Archiving Department: \(name)")
         
         // Add 'deleted' field for sorting purposes
-        self.db.collection("departments")
-            .document(name)
-            .updateData(["deleted" : FirebaseFirestore.Timestamp.init()])
+        self.db.collection("users")
+               .document(session.session!.uid)
+               .collection("departments")
+               .document(name)
+               .updateData(["deleted" : FirebaseFirestore.Timestamp.init()])
         
-        let deptRef = self.db.collection("departments").document(name)
-        let archiveRef = self.db.collection("archive").document(name)
+        let deptRef = self.db.collection("users").document(session.session!.uid).collection("departments").document(name)
+        let archiveRef = self.db.collection("users").document(session.session!.uid).collection("archive").document(name)
 
         deptRef.getDocument() { document, err in
             if err != nil { return }
@@ -114,7 +119,7 @@ class DepartmentModel: ObservableObject {
             snapshot.documents.forEach({ (document) in
                 let data = document.data()
                 let docID = document.documentID
-                archiveRef.collection("dates").document(docID).setData(data)
+                archiveRef.collection("users").document(self.session.session!.uid).collection("dates").document(docID).setData(data)
             })
         }
         deptRef.delete()
@@ -127,7 +132,7 @@ class DepartmentModel: ObservableObject {
     
     func deleteDepartment(_ name: String) {
         
-        let archiveRef = self.db.collection("archive")
+        let archiveRef = self.db.collection("users").document(session.session!.uid).collection("archive")
         let docRef = archiveRef.document(name)
         
         /*
@@ -146,7 +151,7 @@ class DepartmentModel: ObservableObject {
         let db = Firestore.firestore()
         
         // Add document to collection
-        db.collection("departments")
+        db.collection("users").document(session.session!.uid).collection("departments")
             .document(departmentName)
 //            .collection("dates")
 //            .document("20220715")
@@ -157,7 +162,7 @@ class DepartmentModel: ObservableObject {
 //            ])
         
         // Add 'created' field for sorting purposes
-        db.collection("departments")
+        db.collection("users").document(session.session!.uid).collection("departments")
             .document(departmentName)
             .setData(["created" : FirebaseFirestore.Timestamp.init()])
     }
@@ -165,7 +170,7 @@ class DepartmentModel: ObservableObject {
     func getDates(dept department: String, completion: @escaping (_ dates: [String]) -> Void) {
         
         var dates:[String] = []
-        let datesRef = db.collection("departments")
+        let datesRef = db.collection("users").document(session.session!.uid).collection("departments")
                          .document(department)
                          .collection("dates")
         
@@ -188,7 +193,7 @@ class DepartmentModel: ObservableObject {
     func getTimes(dept department: String, date: String, completion: @escaping (_ timecard: [EmployeeTimecard]) -> Void) {
 
         var timecards: [EmployeeTimecard] = []
-        let docRef = db.collection("departments")
+        let docRef = db.collection("users").document(session.session!.uid).collection("departments")
                        .document(department)
                        .collection("dates")
                        .document(date)
