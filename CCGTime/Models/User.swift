@@ -53,7 +53,7 @@ class SessionStore : ObservableObject {
                 }
                 self.session = authResult?.user
                 let changeRequest = self.session?.createProfileChangeRequest()
-                changeRequest?.displayName = "\(firstName) \(lastName))"
+                changeRequest?.displayName = "\(firstName) \(lastName)"
                 changeRequest?.commitChanges { error in
                     if let error = error {
                         print("Error Commiting Account Changes: \(error)")
