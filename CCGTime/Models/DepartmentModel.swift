@@ -19,7 +19,7 @@ class DepartmentModel: ObservableObject {
     @Published var archiveStrings = [String]()
     var archives = [Department]()
     
-    fileprivate var db: Firestore!
+    private var db: Firestore!
     
     var session: SessionStore
     

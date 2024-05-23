@@ -11,8 +11,8 @@ struct LoginView: View {
     
     @StateObject var session : SessionStore
     
-    @State var email = ""
-    @State var password = ""
+    @State private var email = ""
+    @State private var password = ""
     
     
     var body: some View {

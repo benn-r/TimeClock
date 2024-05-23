@@ -10,7 +10,7 @@ import Combine
 
 struct ViewController: View {
     
-    @StateObject var session = SessionStore()
+    @StateObject private var session = SessionStore()
     
     var body: some View {
         if (session.session != nil) {
@@ -26,18 +26,21 @@ struct ViewController: View {
                         Image(systemName: "person.crop.circle.fill")
                             Text("Manager")
                     }
+                    //.onDisappear(perform: authModel.lock)
                         
             }
         } else {
             LoginView(session: session)
         }
     }
+    
 }
     
 
 #Preview {
     ViewController()
 }
+
 
 // NumbersOnly
 // Used to restrict text input to only filtered keywords

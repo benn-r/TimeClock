@@ -11,17 +11,17 @@ struct EmployeeView: View {
     
     @ObservedObject var session : SessionStore
     
-    @State var employeeDepartment = ""
-    @State var selectedDepartment = "Select A Department"
-    @FocusState var isInputActive: Bool
-    @ObservedObject var employeeNumber = NumbersOnly()
-    @ObservedObject var DeptModel : DepartmentModel
-    @ObservedObject var EmpModel : EmployeeModel
+    @State private var employeeDepartment = ""
+    @State private var selectedDepartment = "Select A Department"
+    @FocusState private var isInputActive: Bool
+    @ObservedObject private var employeeNumber = NumbersOnly()
+    @ObservedObject private var deptModel : DepartmentModel
+    @ObservedObject private var empModel : EmployeeModel
     
     init(session: SessionStore) {
         self.session = session
-        EmpModel = EmployeeModel(session: session)
-        DeptModel = DepartmentModel(session: session)
+        empModel = EmployeeModel(session: session)
+        deptModel = DepartmentModel(session: session)
     }
     
     
@@ -29,7 +29,7 @@ struct EmployeeView: View {
     // Function to check if employee is clocking into the correct department
     func empCorrectDept(_ empId: NumbersOnly, _ selectedDept: String) -> Bool {
         
-        let correctDept = EmpModel.getDept(id: empId)
+        let correctDept = empModel.getDept(id: empId)
         
         if (selectedDept == correctDept) {
             return true
@@ -70,7 +70,7 @@ struct EmployeeView: View {
                     
                             
                     Menu(selectedDepartment) {
-                        ForEach(DeptModel.deptStrings, id: \.self) { item in
+                        ForEach(deptModel.deptStrings, id: \.self) { item in
                             Button(item) {
                                 self.selectedDepartment = item
                                 self.employeeDepartment = item
@@ -103,7 +103,7 @@ struct EmployeeView: View {
                         // If both are true then continue
                         else {
                             
-                            EmpModel.checkId(session: session, id: empNum) { idIsValid in
+                            empModel.checkId(session: session, id: empNum) { idIsValid in
                                 
                                 // First check that employee and department
                                 // selection are correct
@@ -122,7 +122,7 @@ struct EmployeeView: View {
                                         
                                         correctInfo = false
                                         
-                                        let empDept = EmpModel.getDept(id: empNum)
+                                        let empDept = empModel.getDept(id: empNum)
                                         
                                         Alert.error("Employee \(empNum.value) is assigned to department \(empDept), not \(selectedDept)")
                                     }
@@ -132,16 +132,16 @@ struct EmployeeView: View {
                                 
                                 if (correctInfo) {
                                     
-                                    EmpModel.isClockedIn(session: session, id: empNum.value, dept: selectedDept) { isClockedIn in
+                                    empModel.isClockedIn(session: session, id: empNum.value, dept: selectedDept) { isClockedIn in
 
                                         if (!isClockedIn) {
                                             let currentTime = Time.fancyTime()
                                             
                                             //let timecard = EmployeeTimecard(id:empNum, dept:selectedDept)
                                             
-                                            EmpModel.clockIn(session: session, id: empNum.value, department: employeeDepartment)
+                                            empModel.clockIn(session: session, id: empNum.value, department: employeeDepartment)
                                             
-                                            EmpModel.get(session: session, id: empNum) { emp in
+                                            empModel.get(session: session, id: empNum) { emp in
                                                 Alert.message("Clocked In", "\(emp.name) has clocked in at \(currentTime).")
                                             }
                                         }
@@ -150,9 +150,9 @@ struct EmployeeView: View {
                                             let currentTime = Time.fancyTime()
                                             
                                             
-                                            EmpModel.clockOut(session: session, id: empNum.value, department:selectedDept)
+                                            empModel.clockOut(session: session, id: empNum.value, department:selectedDept)
                                             
-                                            EmpModel.get(session: session, id: empNum) { emp in
+                                            empModel.get(session: session, id: empNum) { emp in
                                                 Alert.message("Clocked Out", "\(emp.name) has clocked out at \(currentTime).")
                                             }
                                         }

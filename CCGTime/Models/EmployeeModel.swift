@@ -10,9 +10,9 @@ import FirebaseFirestore
 
 class EmployeeModel: ObservableObject {
     
-    /*
-     * employeeNames structure - employeeNames[2201] = "Ben Rosario"
-     */
+   /*
+    * employeeNames structure - employeeNames[2201] = "Ben Rosario"
+    */
     
     @Published var employees: [String:Employee] = [:]
     @Published var employeeNameStrings: [String] = []

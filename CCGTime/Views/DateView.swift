@@ -11,25 +11,25 @@ import OrderedCollections
 struct DateView: View {
     
     var session: SessionStore
-    var dept: String
-    var date: String
-    var DeptModel : DepartmentModel
-    var EmpModel : EmployeeModel
-    @State var timecardArray: [EmployeeTimecard] = []
-    @State var empName: String = ""
+    private var dept: String
+    private var date: String
+    private var deptModel : DepartmentModel
+    private var empModel : EmployeeModel
+    @State private var timecardArray: [EmployeeTimecard] = []
+    @State private var empName: String = ""
     
     init(session: SessionStore, dept: String, date: String) {
         self.dept = dept
         self.date = date
         
         self.session = session
-        EmpModel = EmployeeModel(session: session)
-        DeptModel = DepartmentModel(session: session)
+        empModel = EmployeeModel(session: session)
+        deptModel = DepartmentModel(session: session)
     }
     
     var body: some View {
         
-        DeptModel.getTimes(dept: dept, date: date) { tcArray in
+        deptModel.getTimes(dept: dept, date: date) { tcArray in
             self.timecardArray = tcArray
             print("\(tcArray)")
         }
@@ -37,7 +37,7 @@ struct DateView: View {
         return VStack {
             List {
                 ForEach(timecardArray, id: \.self) { timecard in
-                    Section(EmpModel.getName(id: timecard.getID(), withId: true)) {
+                    Section(empModel.getName(id: timecard.getID(), withId: true)) {
                         
                         ForEach(0..<timecard.numOfEvents(), id: \.self) { index in
                             // For both of the scenarios I use the Time.dateView function
@@ -48,14 +48,16 @@ struct DateView: View {
                                 Text("**Clock-Out:** \(Time.dateView(timecard.timecardEvents[index]))")
                                 Text("**Shift Length:** \(Time.distanceBetween(first: timecard.timecardEvents[index - 1], last: timecard.timecardEvents[index]))")
                                     .padding(.bottom)
+                                    .padding(.top)
                             }
+                            
                         }
                     }
                     .headerProminence(.increased)
                 }
             }
         }
-        .navigationTitle("\(DeptModel.simpleDate(date))")
+        .navigationTitle("\(deptModel.simpleDate(date))")
     }
 }
 
