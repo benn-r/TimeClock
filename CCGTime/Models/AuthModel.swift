@@ -7,6 +7,8 @@
 
 import Foundation
 import LocalAuthentication
+import Firebase
+import FirebaseAuth
 
 class AuthModel: ObservableObject {
     
@@ -32,17 +34,50 @@ class AuthModel: ObservableObject {
                         if success {
                             self.isUnlocked = true
                         } else {
+                            // Runs if user HAS biometrics but hits cancel
                             self.isUnlocked = false
-                            Alert.message("Authentication Error", authenticationError.debugDescription)
+                            //Alert.message("Authentication Error", authenticationError.debugDescription)
+                            self.passwordAuth()
                         }
                     }
                 }
             } else {
-                // no biometrics
+                print("no biometrics, proceeding with manual password authentication")
+                self.passwordAuth()
             }
         // runs isUnlocked is true
         } else {
             print("View is already unlocked")
         }
+    }
+    
+    private func passwordAuth() {
+        
+        Alert.promptForString(header: "Enter Password", message: "Enter your account password to unlock.", placeholderText: "Password") { result in
+            
+            if result != "" {
+                let password = result
+                
+                guard let user = Auth.auth().currentUser, let email = user.email else {
+                    print("User is not logged in")
+                    return
+                }
+                
+                let credential = EmailAuthProvider.credential(withEmail: email, password: password)
+                
+                user.reauthenticate(with: credential) { authResult, error in
+                        if let error = error {
+                            self.isUnlocked = false
+                            print(error.localizedDescription)
+                        } else {
+                            self.isUnlocked = true
+                        }
+                }
+            } else {
+                return
+            }
+            
+        }
+        
     }
 }

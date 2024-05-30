@@ -63,6 +63,36 @@ class Alert {
         let windowScene = scenes.first as? UIWindowScene
         let window = windowScene?.windows.first?.rootViewController
         window?.present(alertVC, animated: true)
-        
     }
+    
+    class func promptForString(header: String, message: String, placeholderText: String, completion: @escaping (String) -> Void) {
+        
+        let alertVC = UIAlertController(title: header,
+                                        message: message,
+                                        preferredStyle: .alert)
+        
+        alertVC.addTextField { result in result.placeholder = placeholderText }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (action: UIAlertAction) in
+            completion ("")
+        }
+        
+        let submitAction = UIAlertAction(title: "Submit", style: .default){ (action: UIAlertAction) in
+            if let text = alertVC.textFields?[0].text {
+                completion(text)
+            } else {
+                completion("")
+            }
+            
+        }
+        
+        alertVC.addAction(cancelAction)
+        alertVC.addAction(submitAction)
+            
+        let scenes = UIApplication.shared.connectedScenes
+        let windowScene = scenes.first as? UIWindowScene
+        let window = windowScene?.windows.first?.rootViewController
+        window?.present(alertVC, animated: true)
+    }
+    
 }
