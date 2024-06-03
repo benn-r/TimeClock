@@ -53,7 +53,7 @@ class AuthModel: ObservableObject {
     
     private func passwordAuth() {
         
-        Alert.promptForString(header: "Enter Password", message: "Enter your account password to unlock.", placeholderText: "Password") { result in
+        Alert.promptForString(header: "Enter Password", message: "Enter your account password to unlock.", placeholderText: "Password", isSecureText: true) { result in
             
             if result != "" {
                 let password = result
@@ -68,7 +68,7 @@ class AuthModel: ObservableObject {
                 user.reauthenticate(with: credential) { authResult, error in
                         if let error = error {
                             self.isUnlocked = false
-                            print(error.localizedDescription)
+                            Alert.error(error.localizedDescription)
                         } else {
                             self.isUnlocked = true
                         }

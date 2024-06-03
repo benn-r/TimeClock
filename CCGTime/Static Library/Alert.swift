@@ -65,13 +65,17 @@ class Alert {
         window?.present(alertVC, animated: true)
     }
     
-    class func promptForString(header: String, message: String, placeholderText: String, completion: @escaping (String) -> Void) {
+    class func promptForString(header: String, message: String, placeholderText: String, isSecureText: Bool, completion: @escaping (String) -> Void) {
         
         let alertVC = UIAlertController(title: header,
                                         message: message,
                                         preferredStyle: .alert)
         
-        alertVC.addTextField { result in result.placeholder = placeholderText }
+        alertVC.addTextField { result in
+            result.placeholder = placeholderText
+            result.isSecureTextEntry = isSecureText
+            
+        }
         
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (action: UIAlertAction) in
             completion ("")
