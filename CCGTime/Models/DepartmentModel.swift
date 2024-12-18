@@ -13,6 +13,8 @@ import OrderedCollections
 
 class DepartmentModel: ObservableObject {
     
+    @Published var currentDepartments: [String] = []
+    
     @Published var deptStrings = [String]()
     var departments = [Department]()
     
@@ -20,7 +22,6 @@ class DepartmentModel: ObservableObject {
     var archives = [Department]()
     
     private var db: Firestore!
-    
     var session: SessionStore
     
     init(session: SessionStore) {
@@ -28,6 +29,61 @@ class DepartmentModel: ObservableObject {
         self.session = session
         self.loadData()
     }
+    
+    func generateReport(selectedDepartment: String, startDate: Date, endDate: Date) -> Void {
+        
+        // Ensure start date is before end date
+        guard startDate <= endDate else {
+            print("Start date must be before or equal to end date")
+            return
+        }
+        
+        // Your report generation logic here
+        print("Generating report for \(selectedDepartment) from \(startDate) to \(endDate)")
+        
+        
+    }
+    
+    /*
+    // Separate function for actual Firestore query
+    private func fetchDepartments(session: SessionStore) async throws -> [String] {
+        guard let uid = session.session?.uid else {
+            throw DepartmentFetchError.missingUserSession
+        }
+        
+        let docRef = db.collection("users").document(uid).collection("departments")
+        
+        let querySnapshot = try await docRef.getDocuments()
+        return querySnapshot.documents.map { $0.documentID }
+    }
+
+    // Custom error for more specific error handling
+    enum DepartmentFetchError: Error {
+        case missingUserSession
+    }
+    
+    // Function to fetch departments
+    func getAllDepts(session: SessionStore) async {
+        
+        do {
+            // Await the department fetch
+            let departments = try await self.fetchDepartments(session: session)
+            
+            // Update the published property on the main thread
+            // This ensures UI updates happen on the main queue
+            await MainActor.run {
+                self.currentDepts = departments
+            }
+            
+        } catch {
+            print("Error fetching departments: \(error.localizedDescription)")
+            
+            await MainActor.run {
+                self.currentDepts = []
+            }
+        }
+            
+    } */
     
     fileprivate func loadData() {
         // Add listener for departments collection

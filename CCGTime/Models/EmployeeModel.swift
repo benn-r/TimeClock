@@ -18,13 +18,13 @@ class EmployeeModel: ObservableObject {
     @Published var employeeNameStrings: [String] = []
     @Published var employeeIdStrings: [String] = []
     
-    fileprivate let db: Firestore!
+    private let db: Firestore!
     
-    let staticDate: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
-    var lastTimeClocked: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
-    var lastIdClocked: String = ""
+    private let staticDate: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
+    private var lastTimeClocked: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
+    private var lastIdClocked: String = ""
     
-    init(session: SessionStore) {
+    public init(session: SessionStore) {
         db = Firestore.firestore()
         self.loadData(session: session)
     }

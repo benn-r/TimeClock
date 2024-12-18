@@ -98,5 +98,4 @@ class Alert {
         let window = windowScene?.windows.first?.rootViewController
         window?.present(alertVC, animated: true)
     }
-    
 }

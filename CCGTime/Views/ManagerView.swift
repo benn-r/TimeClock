@@ -18,6 +18,7 @@ struct ManagerView: View {
     
     @State private var showingArchiveAlert = false
     @State private var showingUnarchiveAlert = false
+    
     @State private var showingDeleteAlert = false
     @State private var currentDept: String = ""
     
@@ -26,18 +27,18 @@ struct ManagerView: View {
     @ObservedObject private var empModel : EmployeeModel
     @ObservedObject private var session : SessionStore
     @StateObject private var authModel = AuthModel()
-    //private var authModel : AuthModel
+    
+    @State private var showGenerateReportAlert = false
+    @State private var selectedStartDate = Date()
+    @State private var selectedEndDate = Date()
+    @State private var selectedDepartment: String = ""
+    
     
     init(session: SessionStore) {
         self.session = session
         //self.authModel = authModel
         empModel = EmployeeModel(session: session)
         deptModel = DepartmentModel(session: session)
-    }
-    
-    func generateReport() {
-        //print("Employees: ")
-        print(session.session!.uid)
     }
     
     var body: some View {
@@ -143,34 +144,43 @@ struct ManagerView: View {
                         view.view
                     }
                 }
+                // Sheet for Generate Report button
+                .sheet(isPresented: $showGenerateReportAlert) {
+                    GenerateReportView(
+                        showGenerateReportAlert: $showGenerateReportAlert,
+                        selectedStartDate: $selectedStartDate,
+                        selectedEndDate: $selectedEndDate,
+                        selectedDepartment: $selectedDepartment,
+                        deptModel: deptModel
+                    )
+                }
                     
                 .navigationTitle("Management")
                 .toolbar {
                     ToolbarItemGroup() {
                         Menu("Options") {
                             
-                            Button {
+                            // Create New Department button
+                            Button("Create New Department", systemImage: "note.text.badge.plus") {
                                 Alert.newDept(session: session)
-                            } label: {
-                                Label("Create New Department", systemImage: "note.text.badge.plus")
                             }
                                         
-                            Button {
-                                generateReport()
-                            } label: {
-                                Label("Generate Report", systemImage: "tablecells")
+                            // Generate Report button
+                            Button("Generate Report", systemImage: "tablecells") {
+                                showGenerateReportAlert = true
+                                
+                                print("showDateSelectAlert: \(showGenerateReportAlert)")
+                                print("currentDepts: \(deptModel.deptStrings)")
                             }
                             
-                            Button {
+                            // Add New Employee button
+                            Button("Add New Employee", systemImage: "person.badge.plus") {
                                 self.nextView = IdentifiableView(view: AnyView(AddEmployeeView(session: session)))
-                            } label: {
-                                Label("Add New Employee", systemImage: "person.badge.plus")
                             }
                             
-                            Button {
+                            // Account Settings button
+                            Button("Account Settings", systemImage: "gearshape.fill") {
                                 self.nextView = IdentifiableView(view: AnyView(AccountView(session: session)))
-                            } label: {
-                                Label("Account Settings", systemImage: "gearshape.fill")
                             }
                             
                         }
