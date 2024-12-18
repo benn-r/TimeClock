@@ -24,7 +24,7 @@ class EmployeeModel: ObservableObject {
     private var lastTimeClocked: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
     private var lastIdClocked: String = ""
     
-    public init(session: SessionStore) {
+    init(session: SessionStore) {
         db = Firestore.firestore()
         self.loadData(session: session)
     }
