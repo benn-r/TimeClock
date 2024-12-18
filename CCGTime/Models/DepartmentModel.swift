@@ -43,49 +43,9 @@ class DepartmentModel: ObservableObject {
         
         
     }
-    
-    /*
-    // Separate function for actual Firestore query
-    private func fetchDepartments(session: SessionStore) async throws -> [String] {
-        guard let uid = session.session?.uid else {
-            throw DepartmentFetchError.missingUserSession
-        }
-        
-        let docRef = db.collection("users").document(uid).collection("departments")
-        
-        let querySnapshot = try await docRef.getDocuments()
-        return querySnapshot.documents.map { $0.documentID }
-    }
 
-    // Custom error for more specific error handling
-    enum DepartmentFetchError: Error {
-        case missingUserSession
-    }
     
-    // Function to fetch departments
-    func getAllDepts(session: SessionStore) async {
-        
-        do {
-            // Await the department fetch
-            let departments = try await self.fetchDepartments(session: session)
-            
-            // Update the published property on the main thread
-            // This ensures UI updates happen on the main queue
-            await MainActor.run {
-                self.currentDepts = departments
-            }
-            
-        } catch {
-            print("Error fetching departments: \(error.localizedDescription)")
-            
-            await MainActor.run {
-                self.currentDepts = []
-            }
-        }
-            
-    } */
-    
-    fileprivate func loadData() {
+    private func loadData() {
         // Add listener for departments collection
         db.collection("users").document(session.session!.uid).collection("departments").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
