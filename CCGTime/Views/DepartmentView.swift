@@ -9,21 +9,19 @@ import SwiftUI
 
 struct DepartmentView: View {
     
-    @ObservedObject private var deptModel : DepartmentModel
+    @EnvironmentObject private var departmentModel: DepartmentModel
+    @EnvironmentObject private var session: SessionStore
+    
     @State private var dateArray: [String] = []
     private let dept: String
     
-    var session: SessionStore
-    
-    init(session: SessionStore, dept: String) {
+    init(dept: String) {
         self.dept = dept
-        self.session = session
-        deptModel = DepartmentModel(session: session)
     }
     
     var body: some View {
         
-        let _ = deptModel.getDates(dept: dept) { dates in
+        let _ = departmentModel.getDates(dept: dept) { dates in
             self.dateArray = dates
         }
         
@@ -31,8 +29,8 @@ struct DepartmentView: View {
             
             List {
                 ForEach(dateArray, id: \.self) { item in
-                    NavigationLink(destination: DateView(session: session, dept: dept, date: item)) {
-                        Text(deptModel.fancyDate(item))
+                    NavigationLink(destination: DateView(dept: dept, date: item)) {
+                        Text(departmentModel.fancyDate(item))
                     }
                 }
             }
@@ -43,8 +41,12 @@ struct DepartmentView: View {
 
 
 
-struct DepartmentView_Previews: PreviewProvider {
-    static var previews: some View {
-        DepartmentView(session: SessionStore(), dept: "MargaritaVille")
-    }
-}
+/*
+ 
+ struct DepartmentView_Previews: PreviewProvider {
+     static var previews: some View {
+         DepartmentView(session: SessionStore(), dept: "MargaritaVille")
+     }
+ }
+ 
+ */

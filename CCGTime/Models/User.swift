@@ -13,29 +13,39 @@ import Combine
 
 
 
-class SessionStore : ObservableObject {
+class SessionStore: ObservableObject {
     
-    @Published var session: User?
+    @Published var departmentModel: DepartmentModel?
+    @Published var employeeModel: EmployeeModel?
+    @Published var user: User?
     
+    var activeSession: Bool?
+    var uid: String?
     var handle: AuthStateDidChangeListenerHandle?
     
-    init () {
+    init() {
         self.listen()
     }
     
     func listen() {
         // monitor auth changes using firebase
-        handle = Auth.auth().addStateDidChangeListener { (auth, user) in
+        handle = Auth.auth().addStateDidChangeListener { [weak self] (auth, user) in
+            guard let self = self else { return }
+            
             if let user = user {
                 // if we have a user, create a new user model
-                print("Got user: \(user)")
-                self.session = user
+                print("Got user: \(user.uid)")
+                self.user = user
+                self.uid = user.uid
+                self.activeSession = true
+                
+                self.createDeptModel(with: user.uid)
+                self.createEmpModel(with: user.uid)
                 
             } else {
-                // if we don't have a user, set our session to nil
-                self.session = nil
+                self.activeSession = false
+                print("User has no active session")
             }
-            
         }
     }
     
@@ -51,8 +61,9 @@ class SessionStore : ObservableObject {
                     Alert.message("Error Creating Account", error.localizedDescription)
                     return
                 }
-                self.session = authResult?.user
-                let changeRequest = self.session?.createProfileChangeRequest()
+                self.user = authResult?.user
+                self.uid = authResult?.user.uid
+                let changeRequest = self.user?.createProfileChangeRequest()
                 changeRequest?.displayName = "\(firstName) \(lastName)"
                 changeRequest?.commitChanges { error in
                     if let error = error {
@@ -75,7 +86,8 @@ class SessionStore : ObservableObject {
                     Alert.message("Error Signing In", error.localizedDescription)
                     return
                 }
-                self.session = authResult?.user
+                self.user = authResult?.user
+                self.uid = authResult?.user.uid
                 print("Succesfully Signed In")
             })
         }
@@ -83,7 +95,7 @@ class SessionStore : ObservableObject {
     func signOut() -> Bool {
         do {
             try Auth.auth().signOut()
-            self.session = nil
+            self.user = nil
             print("Succesfully Signed Out")
             return true
         } catch {
@@ -97,5 +109,13 @@ class SessionStore : ObservableObject {
         if let handle = handle {
             Auth.auth().removeStateDidChangeListener(handle)
         }
+    }
+    
+    func createDeptModel(with uid: String) {
+        self.departmentModel = DepartmentModel(with: uid)
+    }
+    
+    func createEmpModel(with uid: String) {
+        self.employeeModel = EmployeeModel(with: uid)
     }
 }

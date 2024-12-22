@@ -10,35 +10,36 @@ import Combine
 
 struct ViewController: View {
     
-    @StateObject private var session = SessionStore()
+    @EnvironmentObject var user: SessionStore
+    @EnvironmentObject var departmentModel: DepartmentModel
+    @EnvironmentObject var employeeModel: EmployeeModel
+    
+    
     
     var body: some View {
-        if (session.session != nil) {
-            TabView {
-                EmployeeView(session: session)
-                    .tabItem {
-                        Image(systemName: "clock")
-                            Text("Clock In")
-                    }
-                
-                ManagerView(session: session)
-                    .tabItem {
-                        Image(systemName: "person.crop.circle.fill")
-                            Text("Manager")
-                    }
-                    //.onDisappear(perform: authModel.lock)
-                        
-            }
-        } else {
-            LoginView(session: session)
+
+        TabView {
+            EmployeeView()
+                .environmentObject(departmentModel)
+                .environmentObject(employeeModel)
+                .tabItem {
+                    Image(systemName: "clock")
+                        Text("Clock In")
+                }
+            
+            ManagerView()
+                .environmentObject(departmentModel)
+                .environmentObject(employeeModel)
+                .tabItem {
+                    Image(systemName: "person.crop.circle.fill")
+                        Text("Manager")
+                }
         }
     }
-    
 }
-    
 
 #Preview {
-    ViewController()
+    //ViewController()
 }
 
 

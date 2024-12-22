@@ -11,7 +11,9 @@ struct AccountView: View {
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
-    @StateObject var session : SessionStore
+    @EnvironmentObject var user: SessionStore
+    
+    
     
     var body: some View {
         NavigationView {
@@ -19,12 +21,12 @@ struct AccountView: View {
                 Text("Name")
                     .bold()
                     .font(.system(size:24))
-                Text(session.session?.displayName ?? "No Name Found")
+                Text(user.user?.displayName ?? "No Name Found")
                 
                 Text("Email")
                     .bold()
                     .font(.system(size:24))
-                Text((session.session?.email ?? "No Email Found"))
+                Text((user.user?.email ?? "No Email Found"))
             }
             .navigationTitle("Account Settings")
             .toolbar {
@@ -40,7 +42,7 @@ struct AccountView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     
                     Button {
-                        if session.signOut() {
+                        if user.signOut() {
                             Alert.message("Success!", "You are now signed out.")
                         }
                     } label: {
@@ -54,5 +56,5 @@ struct AccountView: View {
 }
 
 #Preview {
-    AccountView(session: SessionStore())
+    AccountView()
 }

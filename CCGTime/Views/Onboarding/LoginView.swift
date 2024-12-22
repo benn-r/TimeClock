@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LoginView: View {
     
-    @StateObject var session : SessionStore
+    @EnvironmentObject var user: SessionStore
     
     @State private var email = ""
     @State private var password = ""
@@ -64,7 +64,7 @@ struct LoginView: View {
                     .frame(height: 1)
                 
                 Button("Log In") {
-                    session.signIn(email: email, password: password)
+                    user.signIn(email: email, password: password)
                 }
                 .foregroundColor(Color.white)
                 .background(
@@ -81,7 +81,7 @@ struct LoginView: View {
                     
                     Text("Don't have an account?")
                     
-                    NavigationLink(destination: SignupView(session: session)) {
+                    NavigationLink(destination: SignupView()) {
                             Text("Sign up")
                                 .underline()
                                 .foregroundColor(Color.blue)
@@ -96,5 +96,5 @@ struct LoginView: View {
 }
 
 #Preview {
-    LoginView(session: SessionStore())
+    LoginView()
 }

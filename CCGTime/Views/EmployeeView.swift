@@ -9,27 +9,22 @@ import SwiftUI
 
 struct EmployeeView: View {
     
-    @ObservedObject var session : SessionStore
+    @EnvironmentObject var session : SessionStore
+    @EnvironmentObject var departmentModel : DepartmentModel
+    @EnvironmentObject var employeeModel: EmployeeModel
     
     @State private var employeeDepartment = ""
     @State private var selectedDepartment = "Select A Department"
+    
     @FocusState private var isInputActive: Bool
     @ObservedObject private var employeeNumber = NumbersOnly()
-    @ObservedObject private var deptModel : DepartmentModel
-    @ObservedObject private var empModel : EmployeeModel
     
-    init(session: SessionStore) {
-        self.session = session
-        empModel = EmployeeModel(session: session)
-        deptModel = DepartmentModel(session: session)
-    }
-    
-    
+    init() {}
     
     // Function to check if employee is clocking into the correct department
     func empCorrectDept(_ empId: NumbersOnly, _ selectedDept: String) -> Bool {
         
-        let correctDept = empModel.getDept(id: empId)
+        let correctDept = employeeModel.getDept(id: empId)
         
         if (selectedDept == correctDept) {
             return true
@@ -47,30 +42,25 @@ struct EmployeeView: View {
                     // TextField for employees to enter their ID number into
                     // Value is saved under employeeNumber.value
                     TextField("Employee ID Number", text: $employeeNumber.value)
+                        // Toolbar to create 'Done' button to close keyboard
+                        /*.toolbar {
+                            ToolbarItemGroup(placement: .keyboard) {
+                                Spacer()
+                                Button("Done") { isInputActive = false }
+                            }
+                        } */
                         .keyboardType(.numberPad)
                         .multilineTextAlignment(.center)
                         .frame(width: 180)
-                        .overlay(
+                        .overlay {
                             RoundedRectangle(cornerRadius: 5)
                                 .strokeBorder(.blue, lineWidth: 2)
                                 .scaleEffect(1.75)
-                        )
-                        .focused($isInputActive)
-                    
-                        // Toolbar to create 'Done' button to close keyboard
-                        .toolbar {
-                            ToolbarItemGroup(placement: .keyboard) {
-                                Spacer()
-                                
-                                Button("Done") {
-                                    isInputActive = false
-                                }
-                            }
                         }
-                    
+                        .focused($isInputActive)
                             
                     Menu(selectedDepartment) {
-                        ForEach(deptModel.deptStrings, id: \.self) { item in
+                        ForEach(departmentModel.deptStrings, id: \.self) { item in
                             Button(item) {
                                 self.selectedDepartment = item
                                 self.employeeDepartment = item
@@ -103,7 +93,7 @@ struct EmployeeView: View {
                         // If both are true then continue
                         else {
                             
-                            empModel.checkId(session: session, id: empNum) { idIsValid in
+                            employeeModel.checkId(id: empNum) { idIsValid in
                                 
                                 // First check that employee and department
                                 // selection are correct
@@ -122,7 +112,7 @@ struct EmployeeView: View {
                                         
                                         correctInfo = false
                                         
-                                        let empDept = empModel.getDept(id: empNum)
+                                        let empDept = employeeModel.getDept(id: empNum)
                                         
                                         Alert.error("Employee \(empNum.value) is assigned to department \(empDept), not \(selectedDept)")
                                     }
@@ -132,16 +122,16 @@ struct EmployeeView: View {
                                 
                                 if (correctInfo) {
                                     
-                                    empModel.isClockedIn(session: session, id: empNum.value, dept: selectedDept) { isClockedIn in
+                                    employeeModel.isClockedIn(id: empNum.value, dept: selectedDept) { isClockedIn in
 
                                         if (!isClockedIn) {
                                             let currentTime = Time.fancyTime()
                                             
                                             //let timecard = EmployeeTimecard(id:empNum, dept:selectedDept)
                                             
-                                            empModel.clockIn(session: session, id: empNum.value, department: employeeDepartment)
+                                            employeeModel.clockIn(id: empNum.value, department: employeeDepartment)
                                             
-                                            empModel.get(session: session, id: empNum) { emp in
+                                            employeeModel.get(id: empNum) { emp in
                                                 Alert.message("Clocked In", "\(emp.name) has clocked in at \(currentTime).")
                                             }
                                         }
@@ -150,9 +140,9 @@ struct EmployeeView: View {
                                             let currentTime = Time.fancyTime()
                                             
                                             
-                                            empModel.clockOut(session: session, id: empNum.value, department:selectedDept)
+                                            employeeModel.clockOut(id: empNum.value, department:selectedDept)
                                             
-                                            empModel.get(session: session, id: empNum) { emp in
+                                            employeeModel.get(id: empNum) { emp in
                                                 Alert.message("Clocked Out", "\(emp.name) has clocked out at \(currentTime).")
                                             }
                                         }
@@ -178,6 +168,6 @@ struct EmployeeView: View {
 
 struct EmployeeView_Previews: PreviewProvider {
     static var previews: some View {
-        EmployeeView(session: SessionStore())
+        EmployeeView()
     }
 }

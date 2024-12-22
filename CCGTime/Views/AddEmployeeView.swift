@@ -9,29 +9,25 @@ import SwiftUI
 
 struct AddEmployeeView: View {
     
-    var session: SessionStore
+    @EnvironmentObject var session: SessionStore
+    @EnvironmentObject var departmentModel : DepartmentModel
+    @EnvironmentObject var employeeModel: EmployeeModel
     
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
-    @State fileprivate var creationSuccessAlert = false
-    @State fileprivate var creationFailureAlert = false
+    @State private var creationSuccessAlert = false
+    @State private var creationFailureAlert = false
     
-    @State fileprivate var selectedDepartment = "Select A Department"
+    @State private var selectedDepartment = "Select A Department"
 
-    @State fileprivate var employeeFirstname = ""
-    @State fileprivate var employeeLastname = ""
-    @State fileprivate var employeeDepartment = ""
+    @State private var employeeFirstname = ""
+    @State private var employeeLastname = ""
+    @State private var employeeDepartment = ""
+    
     @ObservedObject fileprivate var employeeNumber = NumbersOnly()
     @ObservedObject fileprivate var employeeWage = FloatsOnly()
-    @ObservedObject fileprivate var DeptModel : DepartmentModel
     
-    @ObservedObject fileprivate var EmpModel : EmployeeModel
-    
-    init(session: SessionStore) {
-        self.session = session
-        EmpModel = EmployeeModel(session: session)
-        DeptModel = DepartmentModel(session: session)
-    }
+    init() {}
     
     func clearForm() {
         self.employeeFirstname = ""
@@ -71,7 +67,7 @@ struct AddEmployeeView: View {
                             .keyboardType(.decimalPad)
                         
                         Menu(selectedDepartment) {
-                            ForEach(DeptModel.deptStrings, id: \.self) { item in
+                            ForEach(departmentModel.deptStrings, id: \.self) { item in
                                 Button(item) {
                                     self.selectedDepartment = item
                                     self.employeeDepartment = item
@@ -101,7 +97,7 @@ struct AddEmployeeView: View {
                     
                     Button {
                         if formIsValid() {
-                            EmpModel.createNewEmployee(session: session, firstName: employeeFirstname, lastName: employeeLastname, id: employeeNumber, wage: employeeWage, department: employeeDepartment)
+                            employeeModel.createNewEmployee(firstName: employeeFirstname, lastName: employeeLastname, id: employeeNumber, wage: employeeWage, department: employeeDepartment)
                             
                             creationSuccessAlert = true
                             
@@ -123,6 +119,6 @@ struct AddEmployeeView: View {
 
 struct AddEmployeeView_Previews: PreviewProvider {
     static var previews: some View {
-        AddEmployeeView(session: SessionStore())
+        AddEmployeeView()
     }
 }

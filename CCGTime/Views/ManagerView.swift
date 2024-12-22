@@ -16,29 +16,79 @@ struct IdentifiableView: Identifiable {
 
 struct ManagerView: View {
     
+    @EnvironmentObject var user: SessionStore
+    @EnvironmentObject var departmentModel: DepartmentModel
+    @EnvironmentObject var employeeModel: EmployeeModel
+    
     @State private var showingArchiveAlert = false
     @State private var showingUnarchiveAlert = false
-    
     @State private var showingDeleteAlert = false
     @State private var currentDept: String = ""
-    
     @State private var nextView: IdentifiableView? = nil
-    @ObservedObject private var deptModel: DepartmentModel
-    @ObservedObject private var empModel : EmployeeModel
-    @ObservedObject private var session : SessionStore
-    @StateObject private var authModel = AuthModel()
     
     @State private var showGenerateReportAlert = false
     @State private var selectedStartDate = Date()
     @State private var selectedEndDate = Date()
     @State private var selectedDepartment: String = ""
     
+    @StateObject  var authModel = AuthModel()
     
-    init(session: SessionStore) {
-        self.session = session
-        //self.authModel = authModel
-        empModel = EmployeeModel(session: session)
-        deptModel = DepartmentModel(session: session)
+    init() {}
+    
+    var employeeSection: some View {
+        Section("Employees") {
+            
+            ForEach(employeeModel.employeeIdStrings, id: \.self) { item in
+                
+                let empName = employeeModel.getName(id: item, withId: false)
+                
+                NavigationLink(destination: EmployeeManagementView(employeeId: item)) {
+                    Text(empName)
+                }
+            }
+        }
+    }
+    
+    var currentDepartmentsSection: some View {
+        Section("Current Departments") {
+            ForEach(departmentModel.deptStrings, id: \.self) { item in
+                
+                NavigationLink(destination: DepartmentView(dept: item)) {
+                    Text(item)
+                        .swipeActions(allowsFullSwipe: false) {
+                            Button("Archive") {
+                                currentDept = item
+                                showingArchiveAlert = true
+                            }
+                        }
+                        .tint(.red)
+                }
+            }
+        }
+    }
+    
+    var archivedDepartmentsSection: some View {
+        Section("Archived Departments") {
+            ForEach(departmentModel.archiveStrings, id: \.self) { item in
+                NavigationLink(destination: DepartmentView(dept: item)) {
+                    Text(item)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button("Delete") {
+                                currentDept = item
+                                showingDeleteAlert = true
+                            }
+                            .tint(.red)
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button("Unarchive") {
+                                currentDept = item
+                                showingUnarchiveAlert = true
+                            }
+                            .tint(.blue)
+                        }
+                }
+            }
+        }
     }
     
     var body: some View {
@@ -52,56 +102,9 @@ struct ManagerView: View {
                 VStack(alignment: .center) {
                     
                     List {
-                        // Current Employees
-                        Section("Employees") {
-                            
-                            ForEach(empModel.employeeIdStrings, id: \.self) { item in
-                                
-                                let empName = empModel.getName(id: item, withId: false)
-                                
-                                NavigationLink(destination: EmployeeManagementView(session: session, employeeId: item)) {
-                                    Text(empName)
-                                }
-                            }
-                        }
-                        // Current Departments
-                        Section("Current Departments") {
-                            ForEach(deptModel.deptStrings, id: \.self) { item in
-                                
-                                NavigationLink(destination: DepartmentView(session: session, dept: item)) {
-                                    Text(item)
-                                        .swipeActions(allowsFullSwipe: false) {
-                                            Button("Archive") {
-                                                currentDept = item
-                                                showingArchiveAlert = true
-                                            }
-                                        }
-                                        .tint(.red)
-                                }
-                            }
-                        }
-                        // Archived Departments
-                        Section("Archived Departments") {
-                            ForEach(deptModel.archiveStrings, id: \.self) { item in
-                                NavigationLink(destination: DepartmentView(session: session, dept: item)) {
-                                    Text(item)
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                            Button("Delete") {
-                                                currentDept = item
-                                                showingDeleteAlert = true
-                                            }
-                                            .tint(.red)
-                                        }
-                                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                                            Button("Unarchive") {
-                                                currentDept = item
-                                                showingUnarchiveAlert = true
-                                            }
-                                            .tint(.blue)
-                                        }
-                                }
-                            }
-                        }
+                        employeeSection
+                        currentDepartmentsSection
+                        archivedDepartmentsSection
                     }
                     // Confirmation dialogue for delete button
                     .confirmationDialog(
@@ -111,7 +114,7 @@ struct ManagerView: View {
                     ) {
                         Button("Delete") {
                             withAnimation {
-                                deptModel.deleteDepartment(currentDept)
+                                departmentModel.deleteDepartment(currentDept)
                             }
                         }
                     }
@@ -123,7 +126,7 @@ struct ManagerView: View {
                     ) {
                         Button("Archive") {
                             withAnimation {
-                                deptModel.archiveDepartment(currentDept)
+                                departmentModel.archiveDepartment(currentDept)
                             }
                         }
                     }
@@ -135,7 +138,7 @@ struct ManagerView: View {
                     ) {
                         Button("Unarchive") {
                             withAnimation {
-                                deptModel.unarchiveDepartment(currentDept)
+                                departmentModel.unarchiveDepartment(currentDept)
                             }
                         }
                     }
@@ -151,7 +154,7 @@ struct ManagerView: View {
                         selectedStartDate: $selectedStartDate,
                         selectedEndDate: $selectedEndDate,
                         selectedDepartment: $selectedDepartment,
-                        deptModel: deptModel
+                        deptModel: departmentModel
                     )
                 }
                     
@@ -162,7 +165,7 @@ struct ManagerView: View {
                             
                             // Create New Department button
                             Button("Create New Department", systemImage: "note.text.badge.plus") {
-                                Alert.newDept(session: session)
+                                Alert.newDept(uid: user.user!.uid)
                             }
                                         
                             // Generate Report button
@@ -170,17 +173,17 @@ struct ManagerView: View {
                                 showGenerateReportAlert = true
                                 
                                 print("showDateSelectAlert: \(showGenerateReportAlert)")
-                                print("currentDepts: \(deptModel.deptStrings)")
+                                print("currentDepts: \(departmentModel.deptStrings)")
                             }
                             
                             // Add New Employee button
                             Button("Add New Employee", systemImage: "person.badge.plus") {
-                                self.nextView = IdentifiableView(view: AnyView(AddEmployeeView(session: session)))
+                                self.nextView = IdentifiableView(view: AnyView(AddEmployeeView()))
                             }
                             
                             // Account Settings button
                             Button("Account Settings", systemImage: "gearshape.fill") {
-                                self.nextView = IdentifiableView(view: AnyView(AccountView(session: session)))
+                                self.nextView = IdentifiableView(view: AnyView(AccountView()))
                             }
                             
                         }
@@ -203,6 +206,6 @@ struct ManagerView: View {
 
 struct ManagerView_Previews: PreviewProvider {
     static var previews: some View {
-        ManagerView(session: SessionStore())
+        ManagerView()
     }
 }

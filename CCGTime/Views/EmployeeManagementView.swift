@@ -10,21 +10,17 @@ import SwiftUI
 
 struct EmployeeManagementView: View {
     
-    @ObservedObject var session: SessionStore
-    @ObservedObject var EmpModel: EmployeeModel
+    @EnvironmentObject var session: SessionStore
+    @EnvironmentObject var employeeModel: EmployeeModel
     var employeeId: String
     
-    init(session: SessionStore, employeeId: String) {
+    init(employeeId: String) {
         self.employeeId = employeeId
-        
-        self.session = session
-        EmpModel = EmployeeModel(session: session)
-        
     }
     
     var body: some View {
         
-        let employee = EmpModel.employees[employeeId]
+        let employee = employeeModel.employees[employeeId]
         let employeeName: String = employee?.name ?? "ERROR | Name was nil"
         let employeeDept: String = employee?.department ?? "ERROR | Department was nil"
         
@@ -60,6 +56,6 @@ struct EmployeeManagementView: View {
 
 struct EmployeeManagementView_Previews: PreviewProvider {
     static var previews: some View {
-        EmployeeManagementView(session: SessionStore(), employeeId: "0155")
+        EmployeeManagementView(employeeId: "0155")
     }
 }

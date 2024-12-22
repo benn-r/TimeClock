@@ -10,25 +10,38 @@ import FirebaseCore
 
 class AppDelegate: NSObject, UIApplicationDelegate {
 
-  func application(_ application: UIApplication,
+    func application(_ application: UIApplication,
 
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+                       didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
 
-    FirebaseApp.configure()
+        FirebaseApp.configure()
 
-    return true
+        return true
 
-  }
+      }
 }
 
 @main
 struct CCGTimeApp: App {
+    
     // register app delegate for Firebase setup
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
-
+    
+    @StateObject var user = SessionStore()
+    
     var body: some Scene {
         WindowGroup {
-            ViewController()
+            if user.user == nil || user.departmentModel == nil || user.employeeModel == nil {
+                ProgressView()
+            } else if user.activeSession == false {
+                LoginView()
+                    .environmentObject(user)
+            } else {
+                ViewController()
+                    .environmentObject(user)
+                    .environmentObject(user.departmentModel!)
+                    .environmentObject(user.employeeModel!)
+            }
         }
     }
 }

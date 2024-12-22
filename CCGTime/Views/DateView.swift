@@ -10,26 +10,24 @@ import OrderedCollections
 
 struct DateView: View {
     
-    var session: SessionStore
+    @EnvironmentObject var session: SessionStore
+    @EnvironmentObject var departmentModel: DepartmentModel
+    @EnvironmentObject var employeeModel: EmployeeModel
+    
     private var dept: String
     private var date: String
-    private var deptModel : DepartmentModel
-    private var empModel : EmployeeModel
+    
     @State private var timecardArray: [EmployeeTimecard] = []
     @State private var empName: String = ""
     
-    init(session: SessionStore, dept: String, date: String) {
+    init(dept: String, date: String) {
         self.dept = dept
         self.date = date
-        
-        self.session = session
-        empModel = EmployeeModel(session: session)
-        deptModel = DepartmentModel(session: session)
     }
     
     var body: some View {
         
-        deptModel.getTimes(dept: dept, date: date) { tcArray in
+        departmentModel.getTimes(dept: dept, date: date) { tcArray in
             self.timecardArray = tcArray
             print("\(tcArray)")
         }
@@ -37,7 +35,7 @@ struct DateView: View {
         return VStack {
             List {
                 ForEach(timecardArray, id: \.self) { timecard in
-                    Section(empModel.getName(id: timecard.getID(), withId: true)) {
+                    Section(employeeModel.getName(id: timecard.getID(), withId: true)) {
                         
                         ForEach(0..<timecard.numOfEvents(), id: \.self) { index in
                             // For both of the scenarios I use the Time.dateView function
@@ -57,12 +55,12 @@ struct DateView: View {
                 }
             }
         }
-        .navigationTitle("\(deptModel.simpleDate(date))")
+        .navigationTitle("\(departmentModel.simpleDate(date))")
     }
 }
 
 struct DateView_Previews: PreviewProvider {
     static var previews: some View {
-        DateView(session: SessionStore(), dept: "Alphabet", date: "03052024")
+        DateView(dept: "Alphabet", date: "03052024")
     }
 }

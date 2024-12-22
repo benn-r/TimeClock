@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseFirestore
+import SwiftUICore
 
 class EmployeeModel: ObservableObject {
     
@@ -18,22 +19,24 @@ class EmployeeModel: ObservableObject {
     @Published var employeeNameStrings: [String] = []
     @Published var employeeIdStrings: [String] = []
     
-    private let db: Firestore!
+    public var uid: String
+    private var db: Firestore
     
     private let staticDate: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
     private var lastTimeClocked: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
     private var lastIdClocked: String = ""
     
-    init(session: SessionStore) {
+    init(with givenUid: String) {
         db = Firestore.firestore()
-        self.loadData(session: session)
+        self.uid = givenUid
+        self.loadData()
     }
     
-    private func loadData(session: SessionStore) {
+    private func loadData() {
         // Add listener for employees collection
-        db.collection("users").document(session.session!.uid).collection("employees").addSnapshotListener() { (querySnapshot, error) in
+        db.collection("users").document(uid).collection("employees").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
-                print("ERROR: adding the snapshot listener \(error!.localizedDescription)")
+                print("Error: adding the snapshot listener \(error!.localizedDescription)")
                 return
             }
             
@@ -86,13 +89,13 @@ class EmployeeModel: ObservableObject {
         return fullName
     }
     
-    func fetchTimecards(session: SessionStore, department: String, completion: @escaping (_ timecard: EmployeeTimecard) -> Void) {
+    func fetchTimecards(department: String, completion: @escaping (_ timecard: EmployeeTimecard) -> Void) {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
         
         let docRef = db.collection("users")
-            .document(session.session!.uid)
+            .document(uid)
             .collection("departments")
             .document(department)
             .collection("dates")
@@ -113,14 +116,14 @@ class EmployeeModel: ObservableObject {
     /**
      Checks if the given person with the given ID and Department is clocked in on the current day
      */
-    func isClockedIn(session: SessionStore, id: String, dept: String, completion: @escaping (Bool) -> Void) {
+    func isClockedIn(id: String, dept: String, completion: @escaping (Bool) -> Void) {
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd"
         let todaysDateString = dateFormatter.string(from: Date.now)
         
         let timecardRef = db.collection("users")
-            .document(session.session!.uid)
+            .document(uid)
             .collection("departments")
             .document(dept)
             .collection("dates")
@@ -156,7 +159,7 @@ class EmployeeModel: ObservableObject {
      That means it is important to check that the employee has already clocked out
      before you call this function!
      */
-    func clockIn(session: SessionStore, id: String, department: String) {
+    func clockIn(id: String, department: String) {
         
         if (lastTimeClocked == staticDate && lastIdClocked == "" ) {
             lastTimeClocked = Date.init()
@@ -189,14 +192,14 @@ class EmployeeModel: ObservableObject {
         let todaysDateString = dateFormatter.string(from: Date.now)
         
         db.collection("users")
-            .document(session.session!.uid)
+            .document(uid)
             .collection("departments")
             .document(department)
             .collection("dates")
             .document(todaysDateString).setData(["visible" : true])
         
         let timecardDocRef = db.collection("users")
-            .document(session.session!.uid)
+            .document(uid)
             .collection("departments")
             .document(department)
             .collection("dates")
@@ -250,7 +253,7 @@ class EmployeeModel: ObservableObject {
      That means it is important to check that the employee has already clocked in
      before you call this function!
      */
-    func clockOut(session: SessionStore, id: String, department: String) {
+    func clockOut(id: String, department: String) {
         
         if (lastTimeClocked == staticDate && lastIdClocked == "" ) {
             lastTimeClocked = Date.init()
@@ -283,14 +286,14 @@ class EmployeeModel: ObservableObject {
         let todaysDateString = dateFormatter.string(from: Date.now)
         
         db.collection("users")
-            .document(session.session!.uid)
+            .document(uid)
             .collection("departments")
             .document(department)
             .collection("dates")
             .document(todaysDateString).setData(["visible" : true])
         
         let timecardDocRef = db.collection("users")
-            .document(session.session!.uid)
+            .document(uid)
             .collection("departments")
             .document(department)
             .collection("dates")
@@ -310,10 +313,10 @@ class EmployeeModel: ObservableObject {
     
     
     
-    func createNewEmployee(session: SessionStore, firstName: String, lastName: String, id: NumbersOnly, wage: FloatsOnly, department: String) {
+    func createNewEmployee(firstName: String, lastName: String, id: NumbersOnly, wage: FloatsOnly, department: String) {
         
         let docRef = db.collection("users")
-            .document(session.session!.uid)
+            .document(uid)
             .collection("employees")
             .document(id.value)
         
@@ -332,7 +335,7 @@ class EmployeeModel: ObservableObject {
         }
     }
     
-    func checkId(session: SessionStore, id: NumbersOnly, completion: @escaping (_ idExists: Bool) -> Void) {
+    func checkId(id: NumbersOnly, completion: @escaping (_ idExists: Bool) -> Void) {
         
         var idIsValid: Bool = false;
         
@@ -342,7 +345,7 @@ class EmployeeModel: ObservableObject {
         }
         else {
             let docRef = db.collection("users")
-                .document(session.session!.uid)
+                .document(uid)
                 .collection("employees")
                 .document(id.value)
             //
@@ -368,8 +371,8 @@ class EmployeeModel: ObservableObject {
      * A failure case may occur otherwise
      * This is because the id you are trying to get may not exist
      */
-    func get(session: SessionStore, id: NumbersOnly, completion: @escaping (_ employee: Employee) -> Void) {
-        let docRef = db.collection("users").document(session.session!.uid).collection("employees").document(id.value)
+    func get(id: NumbersOnly, completion: @escaping (_ employee: Employee) -> Void) {
+        let docRef = db.collection("users").document(uid).collection("employees").document(id.value)
         
         docRef.getDocument(as: Employee.self) { result in
             switch result {
