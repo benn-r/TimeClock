@@ -9,11 +9,14 @@ import SwiftUI
 
 struct GenerateReportView: View {
     
+    @EnvironmentObject var departmentModel: DepartmentModel
+    
     @Binding var showGenerateReportAlert: Bool
     @Binding var selectedStartDate: Date
     @Binding var selectedEndDate: Date
     @Binding var selectedDepartment: String
-    @ObservedObject var deptModel: DepartmentModel
+    
+    var earliestDate: Date
     
     var body: some View {
         NavigationView {
@@ -21,6 +24,7 @@ struct GenerateReportView: View {
                 DatePicker(
                     "Start Date",
                     selection: $selectedStartDate,
+                    in: earliestDate...Date(),
                     displayedComponents: [.date]
                 )
                 
@@ -32,7 +36,7 @@ struct GenerateReportView: View {
                 
                 Picker("Select Department", selection: $selectedDepartment) {
                     Text("Select a Department").tag("")
-                    ForEach(deptModel.deptStrings, id: \.self) { dept in
+                    ForEach(departmentModel.deptStrings, id: \.self) { dept in
                         Text(dept)
                     }
                 }
@@ -44,7 +48,7 @@ struct GenerateReportView: View {
                 },
                 trailing: Button("Generate") {
                     if !selectedDepartment.isEmpty {
-                        deptModel.generateReport(
+                        departmentModel.generateReport(
                             selectedDepartment: selectedDepartment,
                             startDate: selectedStartDate,
                             endDate: selectedEndDate

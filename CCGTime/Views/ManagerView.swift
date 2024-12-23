@@ -147,6 +147,9 @@ struct ManagerView: View {
                         view.view
                     }
                 }
+                .onAppear {
+                    departmentModel.getEarliestDate()
+                }
                 // Sheet for Generate Report button
                 .sheet(isPresented: $showGenerateReportAlert) {
                     GenerateReportView(
@@ -154,10 +157,9 @@ struct ManagerView: View {
                         selectedStartDate: $selectedStartDate,
                         selectedEndDate: $selectedEndDate,
                         selectedDepartment: $selectedDepartment,
-                        deptModel: departmentModel
+                        earliestDate: departmentModel.earliestDate!
                     )
                 }
-                    
                 .navigationTitle("Management")
                 .toolbar {
                     ToolbarItemGroup() {
@@ -165,7 +167,7 @@ struct ManagerView: View {
                             
                             // Create New Department button
                             Button("Create New Department", systemImage: "note.text.badge.plus") {
-                                Alert.newDept(uid: user.user!.uid)
+                                Alert.newDept(departmentModel: departmentModel)
                             }
                                         
                             // Generate Report button

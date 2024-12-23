@@ -14,15 +14,14 @@ import OrderedCollections
 class DepartmentModel: ObservableObject {
     
     private var uid: String
-    private var db: Firestore?
+    private var db: Firestore
+    
+    var departments = [Department]()
+    var departmentArray = [Department]()
+    var earliestDate: Date?
     
     @Published var deptStrings = [String]()
-    var departments = [Department]()
-    
     @Published var archiveStrings = [String]()
-    var departmentArray = [Department]()
-
-    var earliestDate: Date = Date()
     
     init(with givenUid: String) {
         db = Firestore.firestore()
@@ -32,7 +31,7 @@ class DepartmentModel: ObservableObject {
     
     private func loadData() {
         // Add listener for departments collection
-        db!.collection("users").document(uid).collection("departments").addSnapshotListener() { (querySnapshot, error) in
+        db.collection("users").document(uid).collection("departments").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
                 print("Error adding the snapshot listener \(error!.localizedDescription)")
                 return
@@ -48,7 +47,7 @@ class DepartmentModel: ObservableObject {
         }
         
         // Add listener for archive collection
-        db!.collection("users").document(uid).collection("archive").addSnapshotListener() { (querySnapshot, error) in
+        db.collection("users").document(uid).collection("archive").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
                 print("Error adding the snapshot listener \(error!.localizedDescription)")
                 return
@@ -95,14 +94,14 @@ class DepartmentModel: ObservableObject {
         print("Archiving Department: \(name)")
         
         // Add 'deleted' field for sorting purposes
-        self.db!.collection("users")
+        self.db.collection("users")
             .document(uid)
                .collection("departments")
                .document(name)
                .updateData(["deleted" : FirebaseFirestore.Timestamp.init()])
         
-        let deptRef = self.db!.collection("users").document(uid).collection("departments").document(name)
-        let archiveRef = self.db!.collection("users").document(uid).collection("archive").document(name)
+        let deptRef = self.db.collection("users").document(uid).collection("departments").document(name)
+        let archiveRef = self.db.collection("users").document(uid).collection("archive").document(name)
 
         deptRef.getDocument() { document, err in
             if err != nil { return }
@@ -136,7 +135,7 @@ class DepartmentModel: ObservableObject {
     
     public func deleteDepartment(_ name: String) {
         
-        let archiveRef = self.db!.collection("users").document(uid).collection("archive")
+        let archiveRef = self.db.collection("users").document(uid).collection("archive")
         let docRef = archiveRef.document(name)
         
         /*
@@ -174,7 +173,7 @@ class DepartmentModel: ObservableObject {
     public func getDates(dept department: String, completion: @escaping (_ dates: [String]) -> Void) {
         
         var dates:[String] = []
-        let datesRef = db!.collection("users").document(uid).collection("departments")
+        let datesRef = db.collection("users").document(uid).collection("departments")
                          .document(department)
                          .collection("dates")
         
@@ -197,7 +196,7 @@ class DepartmentModel: ObservableObject {
     public func getTimes(dept department: String, date: String, completion: @escaping (_ timecard: [EmployeeTimecard]) -> Void) {
 
         var timecards: [EmployeeTimecard] = []
-        let docRef = db!.collection("users").document(uid).collection("departments")
+        let docRef = db.collection("users").document(uid).collection("departments")
                        .document(department)
                        .collection("dates")
                        .document(date)
@@ -240,12 +239,16 @@ class DepartmentModel: ObservableObject {
     
     // Gets the earliest recorded clock-in date in YYYYMMDD and returns a Date object with the same timestamp.
     // Used in the GenerateReportView sheet
-    public func getEarliestDate() async -> Date {
+    public func getEarliestDate() {
         var earliestInt: Int32 = Int32.max
+        var deptsChecked = 0
         
-        let departments = db!.collection("users").document(uid).collection("departments")
+        let departments = db.collection("users").document(uid).collection("departments")
         
         for dept in self.deptStrings {
+            
+            
+            
             let selectedDept = departments.document(dept).collection("dates")
             
             selectedDept.getDocuments { snapshot, error in
@@ -264,28 +267,28 @@ class DepartmentModel: ObservableObject {
                         print(earliestInt)
                     }
                 }
+                
+                deptsChecked += 1
+                
+                if deptsChecked == self.deptStrings.count {
+                    let earliestDate = self.dateFromInt32(earliestInt)!
+                    print("Earliest Date: \(earliestDate.description)")
+                    self.earliestDate = earliestDate
+                }
             }
-        }
-        
-        let earliestDate = self.dateFromInt32(earliestInt)!
-        return earliestDate
-        
-        
+                
+            }
     }
     
     // Converts Int32 in "YYYYMMDD" format to a Date object with the same timestamp
     private func dateFromInt32(_ dateInt: Int32) -> Date? {
-        let yearInt = dateInt / 10000
-        let monthInt = (dateInt % 10000) / 100
-        let dayInt = dateInt % 100
-        
-        var dateComponents = DateComponents()
-        dateComponents.year = Int(yearInt)
-        dateComponents.month = Int(monthInt)
-        dateComponents.day = Int(dayInt)
-        
-        let calendar = Calendar.current
-        return calendar.date(from: dateComponents)
+        let intString = String(dateInt) // Convert Int32 to String
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd" // Match the format
+        //dateFormatter.locale = Locale(identifier: "en_US_POSIX") // Ensure locale is consistent
+        //dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Use a consistent timezone
+        print("NEW DATE: \(dateFormatter.date(from: intString))")
+        return dateFormatter.date(from: intString)
     }
 
     // Converts Date Object to an Int32 in the "YYYYMMDD" format

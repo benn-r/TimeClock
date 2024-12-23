@@ -38,7 +38,7 @@ class Alert {
         window?.present(alertVC, animated: true)
     }
     
-    class func newDept(uid: String) {
+    class func newDept(departmentModel: DepartmentModel) {
         var newDept : String = ""
         
         let alertVC = UIAlertController(title: "Create New Department",
@@ -52,8 +52,7 @@ class Alert {
         let submitAction = UIAlertAction(title: "Create", style: .default) { (action: UIAlertAction) in
             newDept = alertVC.textFields![0].text!
             
-            let departmentModel = DepartmentModel(with: uid)
-        departmentModel.createDepartment(newDept)
+            departmentModel.createDepartment(newDept)
         }
         
         alertVC.addAction(cancelAction)
