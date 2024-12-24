@@ -17,7 +17,7 @@ class EmployeeModel: ObservableObject {
     
     @Published var employees: [String:Employee] = [:]
     @Published var employeeNameStrings: [String] = []
-    @Published var employeeIdStrings: [String] = []
+    @Published var idStrings: [String] = []
     
     public var uid: String
     private var db: Firestore
@@ -51,7 +51,7 @@ class EmployeeModel: ObservableObject {
                 let fullName = "\(firstName) \(lastName)"
                 self.employeeNameStrings.append(fullName)
                 
-                self.employeeIdStrings.append(id)
+                self.idStrings.append(id)
                 
                 self.employees[id] = Employee(firstName: firstName, lastName: lastName,  wage: wage, department: department)
             }
@@ -66,27 +66,18 @@ class EmployeeModel: ObservableObject {
         return empDept
     }
     
-    func getName(id: String, withId: Bool) -> String {
+    func getName(get id: String) -> String {
         
         let employee = employees[id]
-        var fullName: String = ""
         
         if employee != nil {
             let firstName: String = employee!.firstName
             let lastName: String = employee!.lastName
-            
-            if (withId) {
-                fullName = "\(firstName) \(lastName) (\(id))"
-            }
-            else {
-                fullName = "\(firstName) \(lastName)"
-            }
-        }
-        else {
-            fullName = "Employee \(id)"
+            return "\(firstName) \(lastName)"
+        } else {
+            return ""
         }
         
-        return fullName
     }
     
     func fetchTimecards(department: String, completion: @escaping (_ timecard: EmployeeTimecard) -> Void) {

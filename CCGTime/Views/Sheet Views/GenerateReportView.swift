@@ -15,8 +15,8 @@ struct GenerateReportView: View {
     @State private var showDateRangeAlert: Bool = false
     
     @Binding var showGenerateReportAlert: Bool
-    @Binding var selectedStartDate: Date
-    @Binding var selectedEndDate: Date
+    @Binding var startDate: Date
+    @Binding var endDate: Date
     @Binding var selectedDepartment: String
     
     var earliestDate: Date
@@ -26,15 +26,15 @@ struct GenerateReportView: View {
             Form {
                 DatePicker(
                     "Start Date",
-                    selection: $selectedStartDate,
+                    selection: $startDate,
                     in: earliestDate...Date(),
                     displayedComponents: [.date]
                 )
                 
                 DatePicker(
                     "End Date",
-                    selection: $selectedEndDate,
-                    in: selectedStartDate...Date(),
+                    selection: $endDate,
+                    in: startDate...Date(),
                     displayedComponents: [.date]
                 )
                 
@@ -52,7 +52,7 @@ struct GenerateReportView: View {
                 },
                 trailing: Button("Generate") {
                     // Check if date range is logical
-                    if selectedStartDate > selectedEndDate {
+                    if startDate > endDate {
                         showDateRangeAlert = true
                     } else {
                         // Check if a department was selected
@@ -61,8 +61,8 @@ struct GenerateReportView: View {
                         } else {
                             departmentModel.generateReport(
                                 selectedDepartment: selectedDepartment,
-                                startDate: selectedStartDate,
-                                endDate: selectedEndDate
+                                from: startDate,
+                                to: endDate
                             )
                             showGenerateReportAlert = false
                         }

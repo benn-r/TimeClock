@@ -12,15 +12,15 @@ struct EmployeeManagementView: View {
     
     @EnvironmentObject var session: SessionStore
     @EnvironmentObject var employeeModel: EmployeeModel
-    var employeeId: String
+    var id: String
     
-    init(employeeId: String) {
-        self.employeeId = employeeId
+    init(for givenId: String) {
+        self.id = givenId
     }
     
     var body: some View {
         
-        let employee = employeeModel.employees[employeeId]
+        let employee = employeeModel.employees[id]
         let employeeName: String = employee?.name ?? "ERROR | Name was nil"
         let employeeDept: String = employee?.department ?? "ERROR | Department was nil"
         
@@ -34,7 +34,7 @@ struct EmployeeManagementView: View {
                 }
                 
                 Section("ID Number") {
-                    Text(employeeId)
+                    Text(id)
                 }
                 
                 Section("Assigned Department") {
@@ -56,6 +56,6 @@ struct EmployeeManagementView: View {
 
 struct EmployeeManagementView_Previews: PreviewProvider {
     static var previews: some View {
-        EmployeeManagementView(employeeId: "0155")
+        EmployeeManagementView(for: "0155")
     }
 }

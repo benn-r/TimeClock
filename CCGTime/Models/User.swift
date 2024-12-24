@@ -15,10 +15,21 @@ import Combine
 
 class SessionStore: ObservableObject {
     
+    
+    // Creates an instance of each model when the Session has been established and passes it to CCGTimeApp
     @Published var departmentModel: DepartmentModel?
     @Published var employeeModel: EmployeeModel?
+    
     @Published var user: User?
-    @Published var activeSession: Bool?
+    @Published var hasActiveSession: Bool?
+    
+    // No need to use @Published because hasActiveSession already has the wrapper
+    // If hasActiveSession has been set to 'true' or 'false', that means that listen() has finished running.
+    var hasLoaded: Bool {
+        // We are waiting for listen() to finish running, so we will rely on
+        // activeSession being set to true or false
+        return (self.hasActiveSession != nil)
+    }
     
     var uid: String?
     var handle: AuthStateDidChangeListenerHandle?
@@ -37,13 +48,13 @@ class SessionStore: ObservableObject {
                 print("Got user: \(user.uid)")
                 self.user = user
                 self.uid = user.uid
-                self.activeSession = true
+                self.hasActiveSession = true
                 
                 self.createDeptModel(with: user.uid)
                 self.createEmpModel(with: user.uid)
                 
             } else {
-                self.activeSession = false
+                self.hasActiveSession = false
                 print("User has no active session")
             }
         }

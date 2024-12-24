@@ -16,6 +16,8 @@ class DepartmentModel: ObservableObject {
     private var uid: String
     private var db: Firestore
     
+    private var hasFoundEarliestDate: Bool = false
+    
     var departments = [Department]()
     var departmentArray = [Department]()
     var earliestDate: Date?
@@ -214,15 +216,11 @@ class DepartmentModel: ObservableObject {
         }
     }
     
-    func generateReport(selectedDepartment: String, startDate: Date, endDate: Date) -> Void {
+    func generateReport(selectedDepartment dept: String, from startDate: Date, to endDate: Date) -> Void {
         
-        // Ensure start date is before end date
-        guard startDate <= endDate else {
-            print("Start date must be before or equal to end date")
-            return
-        }
         
-        print("Generating report for \(selectedDepartment) from \(startDate) to \(endDate)")
+        
+       
         
         
     }
@@ -230,6 +228,9 @@ class DepartmentModel: ObservableObject {
     // Gets the earliest recorded clock-in date in YYYYMMDD and returns a Date object with the same timestamp.
     // Used in the GenerateReportView sheet
     public func getEarliestDate() {
+        
+        if hasFoundEarliestDate { return }
+        
         var earliestInt: Int32 = Int32.max
         var deptsChecked = 0
         
@@ -261,10 +262,10 @@ class DepartmentModel: ObservableObject {
                 if deptsChecked == self.deptStrings.count {
                     let earliestDate = self.dateFromInt32(earliestInt)!
                     self.earliestDate = earliestDate
+                    self.hasFoundEarliestDate = true
                 }
             }
-                
-            }
+        }
     }
     
     // Converts Int32 in "YYYYMMDD" format to a Date object with the same timestamp
