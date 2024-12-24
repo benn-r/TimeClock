@@ -31,11 +31,14 @@ struct CCGTimeApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if user.user == nil || user.departmentModel == nil || user.employeeModel == nil {
+            // If user object has not fully initialized, show a loading screen
+            if user.activeSession == nil && (user.user == nil || user.departmentModel == nil || user.employeeModel == nil) {
                 ProgressView()
+            // If user object is initialized but there is no active session, show log in screen
             } else if user.activeSession == false {
                 LoginView()
                     .environmentObject(user)
+            // If user object is initialized and has an active session, show main screen
             } else {
                 ViewController()
                     .environmentObject(user)

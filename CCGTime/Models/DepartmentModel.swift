@@ -33,7 +33,7 @@ class DepartmentModel: ObservableObject {
         // Add listener for departments collection
         db.collection("users").document(uid).collection("departments").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
-                print("Error adding the snapshot listener \(error!.localizedDescription)")
+                print("Error adding the snapshot listener: \(error!.localizedDescription)")
                 return
             }
             self.departments = []
@@ -49,7 +49,7 @@ class DepartmentModel: ObservableObject {
         // Add listener for archive collection
         db.collection("users").document(uid).collection("archive").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
-                print("Error adding the snapshot listener \(error!.localizedDescription)")
+                print("Error adding the snapshot listener: \(error!.localizedDescription)")
                 return
             }
             self.departmentArray = []
@@ -113,7 +113,7 @@ class DepartmentModel: ObservableObject {
         let datesRef = deptRef.collection("dates")
         datesRef.getDocuments() { (snapshot, err) in
             if let err = err {
-                print(err.localizedDescription)
+                print("Error getting documents: \(err.localizedDescription)")
                 return
             }
 
@@ -156,13 +156,6 @@ class DepartmentModel: ObservableObject {
         // Add document to collection
         db.collection("users").document(uid).collection("departments")
             .document(departmentName)
-//            .collection("dates")
-//            .document("20220715")
-//            .setData([
-//                "ontime" : [:],
-//                "late" : [:],
-//                "tbd" : [:]
-//            ])
         
         // Add 'created' field for sorting purposes
         db.collection("users").document(uid).collection("departments")
@@ -179,7 +172,7 @@ class DepartmentModel: ObservableObject {
         
         datesRef.getDocuments() { (snapshot, err) in
             if let err = err {
-                print(err.localizedDescription)
+                print("Error getting documents: \(err.localizedDescription)")
                 return
             }
 
@@ -204,7 +197,7 @@ class DepartmentModel: ObservableObject {
 
         docRef.getDocuments() { snapshot, error in
             guard error == nil else {
-                print("Error adding the snapshot listener \(error!.localizedDescription)")
+                print("Error adding the snapshot listener:  \(error!.localizedDescription)")
                 return
             }
             
@@ -214,7 +207,7 @@ class DepartmentModel: ObservableObject {
                     timecards.append(decodedTimecard)
                 }
                 catch {
-                  print("Error trying to decode Timecard \(error)")
+                  print("Error trying to decode Timecard: \(error)")
                 }
             })
             completion(timecards)
@@ -229,9 +222,6 @@ class DepartmentModel: ObservableObject {
             return
         }
         
-        //getEarliestDate()
-        
-        // Your report generation logic here
         print("Generating report for \(selectedDepartment) from \(startDate) to \(endDate)")
         
         
@@ -261,10 +251,8 @@ class DepartmentModel: ObservableObject {
                     let newInt = Int32(item.documentID)!
                     
                     if newInt < earliestInt {
-                        print("DocumentID: \(item.documentID)")
-                        print("DocID Int: \(newInt)")
                         earliestInt = newInt
-                        print(earliestInt)
+                        print("Earliest found date: \(earliestInt)")
                     }
                 }
                 
@@ -272,7 +260,6 @@ class DepartmentModel: ObservableObject {
                 
                 if deptsChecked == self.deptStrings.count {
                     let earliestDate = self.dateFromInt32(earliestInt)!
-                    print("Earliest Date: \(earliestDate.description)")
                     self.earliestDate = earliestDate
                 }
             }
@@ -285,9 +272,6 @@ class DepartmentModel: ObservableObject {
         let intString = String(dateInt) // Convert Int32 to String
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyyMMdd" // Match the format
-        //dateFormatter.locale = Locale(identifier: "en_US_POSIX") // Ensure locale is consistent
-        //dateFormatter.timeZone = TimeZone(secondsFromGMT: 0) // Use a consistent timezone
-        print("NEW DATE: \(dateFormatter.date(from: intString))")
         return dateFormatter.date(from: intString)
     }
 

@@ -11,6 +11,9 @@ struct GenerateReportView: View {
     
     @EnvironmentObject var departmentModel: DepartmentModel
     
+    @State private var showDepartmentAlert: Bool = false
+    @State private var showDateRangeAlert: Bool = false
+    
     @Binding var showGenerateReportAlert: Bool
     @Binding var selectedStartDate: Date
     @Binding var selectedEndDate: Date
@@ -31,6 +34,7 @@ struct GenerateReportView: View {
                 DatePicker(
                     "End Date",
                     selection: $selectedEndDate,
+                    in: selectedStartDate...Date(),
                     displayedComponents: [.date]
                 )
                 
@@ -47,16 +51,30 @@ struct GenerateReportView: View {
                     showGenerateReportAlert = false
                 },
                 trailing: Button("Generate") {
-                    if !selectedDepartment.isEmpty {
-                        departmentModel.generateReport(
-                            selectedDepartment: selectedDepartment,
-                            startDate: selectedStartDate,
-                            endDate: selectedEndDate
-                        )
-                        showGenerateReportAlert = false
+                    // Check if date range is logical
+                    if selectedStartDate > selectedEndDate {
+                        showDateRangeAlert = true
+                    } else {
+                        // Check if a department was selected
+                        if selectedDepartment.isEmpty {
+                            showDepartmentAlert = true
+                        } else {
+                            departmentModel.generateReport(
+                                selectedDepartment: selectedDepartment,
+                                startDate: selectedStartDate,
+                                endDate: selectedEndDate
+                            )
+                            showGenerateReportAlert = false
+                        }
                     }
                 }
             )
+            .alert(Text("Error"), isPresented: $showDepartmentAlert) {} message: {
+                Text("Please select a department")
+            }
+            .alert(Text("Error"), isPresented: $showDateRangeAlert) {} message: {
+                Text("Starting date must be before end date")
+            }
         }
     }
 }

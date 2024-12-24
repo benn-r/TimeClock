@@ -18,8 +18,8 @@ class SessionStore: ObservableObject {
     @Published var departmentModel: DepartmentModel?
     @Published var employeeModel: EmployeeModel?
     @Published var user: User?
+    @Published var activeSession: Bool?
     
-    var activeSession: Bool?
     var uid: String?
     var handle: AuthStateDidChangeListenerHandle?
     

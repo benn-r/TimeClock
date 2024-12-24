@@ -9,11 +9,11 @@ import SwiftUI
 
 struct AddEmployeeView: View {
     
-    @EnvironmentObject var session: SessionStore
+    @EnvironmentObject var user: SessionStore
     @EnvironmentObject var departmentModel : DepartmentModel
     @EnvironmentObject var employeeModel: EmployeeModel
     
-    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Binding var showAddNewEmployeeSheet: Bool
     
     @State private var creationSuccessAlert = false
     @State private var creationFailureAlert = false
@@ -26,8 +26,6 @@ struct AddEmployeeView: View {
     
     @ObservedObject fileprivate var employeeNumber = NumbersOnly()
     @ObservedObject fileprivate var employeeWage = FloatsOnly()
-    
-    init() {}
     
     func clearForm() {
         self.employeeFirstname = ""
@@ -51,8 +49,6 @@ struct AddEmployeeView: View {
     var body: some View {
         NavigationView{
             VStack{
-                Spacer()
-                    .frame(height: 40)
                 
                 Form(){
                     Section(header: Text("Details")){
@@ -83,42 +79,33 @@ struct AddEmployeeView: View {
                 }
             }
             .navigationTitle("Add New Employee")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading){
+            .navigationBarItems(
+                leading: Button("Cancel") {
+                    showAddNewEmployeeSheet = false
+                },
+                trailing: Button("Create") {
+                    if formIsValid() {
+                        employeeModel.createNewEmployee(firstName: employeeFirstname, lastName: employeeLastname, id: employeeNumber, wage: employeeWage, department: employeeDepartment)
                         
-                    Button {
-                        self.presentationMode.wrappedValue.dismiss()
-                    } label: {
-                        Text("Back")
+                        creationSuccessAlert = true
+                        
+                        clearForm()
+                    }
+                    else {
+                        // TODO: (?) Display exactly which entries are invalid using a for loop
+                        creationFailureAlert = true
                     }
                 }
-                
-                ToolbarItem(placement: .navigationBarTrailing){
-                    
-                    Button {
-                        if formIsValid() {
-                            employeeModel.createNewEmployee(firstName: employeeFirstname, lastName: employeeLastname, id: employeeNumber, wage: employeeWage, department: employeeDepartment)
-                            
-                            creationSuccessAlert = true
-                            
-                            clearForm()
-                        }
-                        else {
-                            // TODO: (?) Display exactly which entries are invalid using a for loop
-                            creationFailureAlert = true
-                        }
-                    } label: {
-                        Text("Submit")
-                    }
-                }
-            }
+            )
             
         }
     }
 }
 
+/*
 struct AddEmployeeView_Previews: PreviewProvider {
     static var previews: some View {
         AddEmployeeView()
     }
 }
+*/

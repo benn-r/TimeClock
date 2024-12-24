@@ -38,6 +38,9 @@ struct EmployeeView: View {
         NavigationView {
             ZStack {
                 VStack(alignment: .center, spacing: 35) {
+                    
+                    Spacer()
+                        .frame(height: 150)
 
                     // TextField for employees to enter their ID number into
                     // Value is saved under employeeNumber.value

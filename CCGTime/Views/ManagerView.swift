@@ -26,7 +26,10 @@ struct ManagerView: View {
     @State private var currentDept: String = ""
     @State private var nextView: IdentifiableView? = nil
     
-    @State private var showGenerateReportAlert = false
+    @State private var showGenerateReportSheet = false
+    @State private var showAddNewEmployeeSheet = false
+    @State private var showAccountSettingsSheet = false
+    
     @State private var selectedStartDate = Date()
     @State private var selectedEndDate = Date()
     @State private var selectedDepartment: String = ""
@@ -142,23 +145,25 @@ struct ManagerView: View {
                             }
                         }
                     }
-                    // Code for switching view to employee creation
-                    .fullScreenCover(item: self.$nextView, onDismiss: { nextView = nil }) { view in
-                        view.view
-                    }
                 }
                 .onAppear {
                     departmentModel.getEarliestDate()
                 }
                 // Sheet for Generate Report button
-                .sheet(isPresented: $showGenerateReportAlert) {
+                .sheet(isPresented: $showGenerateReportSheet) {
                     GenerateReportView(
-                        showGenerateReportAlert: $showGenerateReportAlert,
+                        showGenerateReportAlert: $showGenerateReportSheet,
                         selectedStartDate: $selectedStartDate,
                         selectedEndDate: $selectedEndDate,
                         selectedDepartment: $selectedDepartment,
                         earliestDate: departmentModel.earliestDate!
                     )
+                }
+                .sheet(isPresented: $showAddNewEmployeeSheet) {
+                    AddEmployeeView(showAddNewEmployeeSheet: $showAddNewEmployeeSheet)
+                }
+                .sheet(isPresented: $showAccountSettingsSheet) {
+                    AccountView(showAccountSettingsSheet: $showAccountSettingsSheet)
                 }
                 .navigationTitle("Management")
                 .toolbar {
@@ -172,20 +177,17 @@ struct ManagerView: View {
                                         
                             // Generate Report button
                             Button("Generate Report", systemImage: "tablecells") {
-                                showGenerateReportAlert = true
-                                
-                                print("showDateSelectAlert: \(showGenerateReportAlert)")
-                                print("currentDepts: \(departmentModel.deptStrings)")
+                                showGenerateReportSheet = true
                             }
                             
                             // Add New Employee button
                             Button("Add New Employee", systemImage: "person.badge.plus") {
-                                self.nextView = IdentifiableView(view: AnyView(AddEmployeeView()))
+                                showAddNewEmployeeSheet = true
                             }
                             
                             // Account Settings button
                             Button("Account Settings", systemImage: "gearshape.fill") {
-                                self.nextView = IdentifiableView(view: AnyView(AccountView()))
+                                showAccountSettingsSheet = true
                             }
                             
                         }

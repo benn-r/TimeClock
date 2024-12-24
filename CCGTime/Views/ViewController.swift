@@ -14,8 +14,6 @@ struct ViewController: View {
     @EnvironmentObject var departmentModel: DepartmentModel
     @EnvironmentObject var employeeModel: EmployeeModel
     
-    
-    
     var body: some View {
 
         TabView {
