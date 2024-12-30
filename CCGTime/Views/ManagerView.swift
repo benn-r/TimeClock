@@ -202,7 +202,6 @@ struct ManagerView: View {
                     .foregroundStyle(.white)
                     .clipShape(.capsule)
             }
-
         }
         .onDisappear(perform: authModel.lock)
     }

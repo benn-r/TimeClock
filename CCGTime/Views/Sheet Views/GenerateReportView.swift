@@ -11,15 +11,17 @@ struct GenerateReportView: View {
     
     @EnvironmentObject var departmentModel: DepartmentModel
     
-    @State private var showDepartmentAlert: Bool = false
-    @State private var showDateRangeAlert: Bool = false
+    @State private var reportUrl: URL?
+    @State private var showDepartmentAlert = false
+    @State private var showDateRangeAlert = false
+    @State private var showShareSheet = false
     
     @Binding var showGenerateReportAlert: Bool
     @Binding var selectedStartDate: Date
     @Binding var selectedEndDate: Date
     @Binding var selectedDepartment: String
     
-    var earliestDate: Date
+    public var earliestDate: Date
     
     var body: some View {
         NavigationView {
@@ -59,12 +61,24 @@ struct GenerateReportView: View {
                         if selectedDepartment.isEmpty {
                             showDepartmentAlert = true
                         } else {
-                            departmentModel.generateReport(
-                                selectedDepartment: selectedDepartment,
-                                startDate: selectedStartDate,
-                                endDate: selectedEndDate
-                            )
-                            showGenerateReportAlert = false
+                            
+                            do {
+                                let report = try Report(
+                                    start: selectedStartDate,
+                                    end: selectedEndDate,
+                                    for: selectedDepartment
+                                    )
+                                
+                                if report.completed == true {
+                                    self.openFilesApp()
+                                }
+                                
+                                
+                            } catch {
+                                Alert.error("Could not access documents directory")
+                                showGenerateReportAlert = false
+                            }
+                            
                         }
                     }
                 }
@@ -76,6 +90,19 @@ struct GenerateReportView: View {
                 Text("Starting date must be before end date")
             }
         }
+    }
+    
+    private func openFilesApp() {
+        do {
+            let documentsUrl = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            let path = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
+            if let url = URL(string: path) {
+                UIApplication.shared.open(url)
+            }
+        } catch(let error) {
+            print(error)
+        }
+        
     }
 }
 

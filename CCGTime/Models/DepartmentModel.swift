@@ -10,6 +10,8 @@ import Firebase
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import OrderedCollections
+import SwiftUI
+
 
 class DepartmentModel: ObservableObject {
     
@@ -214,22 +216,10 @@ class DepartmentModel: ObservableObject {
         }
     }
     
-    func generateReport(selectedDepartment: String, startDate: Date, endDate: Date) -> Void {
-        
-        // Ensure start date is before end date
-        guard startDate <= endDate else {
-            print("Start date must be before or equal to end date")
-            return
-        }
-        
-        print("Generating report for \(selectedDepartment) from \(startDate) to \(endDate)")
-        
-        
-    }
-    
     // Gets the earliest recorded clock-in date in YYYYMMDD and returns a Date object with the same timestamp.
     // Used in the GenerateReportView sheet
     public func getEarliestDate() {
+        
         var earliestInt: Int32 = Int32.max
         var deptsChecked = 0
         
