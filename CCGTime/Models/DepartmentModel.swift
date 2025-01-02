@@ -10,8 +10,6 @@ import Firebase
 import FirebaseFirestore
 import FirebaseFirestoreSwift
 import OrderedCollections
-import SwiftUI
-
 
 class DepartmentModel: ObservableObject {
     
@@ -20,18 +18,21 @@ class DepartmentModel: ObservableObject {
     
     var departments = [Department]()
     var departmentArray = [Department]()
+    var allEmployees = [String:Employee]()
     var earliestDate: Date?
     
     @Published var deptStrings = [String]()
     @Published var archiveStrings = [String]()
+    @Published var reportLoading: Bool = false
+    @Published var report: Report?
     
-    init(with givenUid: String) {
+    init(with givenUid: String) async {
         db = Firestore.firestore()
         self.uid = givenUid
-        self.loadData()
+        await self.loadData()
     }
     
-    private func loadData() {
+    private func loadData() async {
         // Add listener for departments collection
         db.collection("users").document(uid).collection("departments").addSnapshotListener() { (querySnapshot, error) in
             guard error == nil else {
@@ -65,8 +66,26 @@ class DepartmentModel: ObservableObject {
             }
         }
         
-        // Get earliest date
-        //earliestDate = await self.getEarliestDate()
+        
+        do {
+            let employees = try await db.collection("users").document(uid).collection("employees").getDocuments()
+            
+            
+            for employee in employees.documents {
+                let firstName = employee.get("firstName") as! String
+                let lastName = employee.get("lastName") as! String
+                let wage = employee.get("wage") as! Double
+                let department = employee.get("department") as! String
+                let id = employee.documentID
+                
+                let newEmployee = Employee(firstName: firstName, lastName: lastName, wage: wage, department: department, employeeId: id)
+                
+                self.allEmployees[id] = newEmployee
+            }
+            
+        } catch (let error){
+            print("Error Creating DepartmentModel allEmployees Array: \(error)")
+        }
     }
     
     public func simpleDate(_ date: String) -> String {
@@ -257,6 +276,35 @@ class DepartmentModel: ObservableObject {
             }
     }
     
+    // Overloads the getEarliestDate function to find the earliest date of a specific department
+    // Also returns a date object set to that specific date
+    public func getEarliestDate(for dept: String) -> Date {
+        
+        var earliestInt: Int32 = Int32.max
+        
+        let deptDates = db.collection("users")
+                          .document(uid)
+                          .collection("departments")
+                          .document(dept)
+                          .collection("dates")
+            
+        deptDates.getDocuments { snapshot, error in
+            guard error == nil else {
+                print("Error adding the snapshot listener \(error!.localizedDescription)")
+                return
+            }
+            
+            snapshot!.documents.forEach { item in
+                let newInt = Int32(item.documentID)!
+                
+                if newInt < earliestInt {
+                    earliestInt = newInt
+                }
+            }
+        }
+        return self.dateFromInt32(earliestInt)!
+    }
+    
     // Converts Int32 in "YYYYMMDD" format to a Date object with the same timestamp
     private func dateFromInt32(_ dateInt: Int32) -> Date? {
         let intString = String(dateInt) // Convert Int32 to String
@@ -277,4 +325,165 @@ class DepartmentModel: ObservableObject {
         return Int32(year * 10000 + month * 100 + day)
     }
     
+    private func stringFromDate(_ date: Date) -> String{
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd" 
+        return dateFormatter.string(from: date)
+    }
+    
+    // Returns an array of type Employee for any employee that has worked from the date given
+    // until the next sunday (range is only 1 day if the date provided is sunday)
+    public func getEmployeesWorkedForWeek(week startingDate: Date, for dept: String) async -> [Employee] {
+        
+        // dayOfWeek returns 1 for a monday and 7 for a sunday
+        var dayOfWeek: Int = startingDate.dayNumberOfWeek()!
+        let range = dayOfWeek...7
+        
+        var employeesWorkedThisWeek: [[Employee]] = []
+        var date = startingDate
+        
+        for _ in range {
+            
+            let employeesWorked = await self.getEmployeesWorkedForDay(day: date, for: dept)
+            employeesWorkedThisWeek.append(employeesWorked)
+            
+            if let newDate = Calendar.current.date(byAdding: .day, value: 1, to: date) {
+                date = newDate
+                dayOfWeek += 1
+            }
+        }
+        
+        if employeesWorkedThisWeek.isEmpty { return []}
+        
+        // Remove duplicates
+        var employeesWorked: [Employee] = []
+        
+        for employeeList in employeesWorkedThisWeek {
+            for employee in employeeList {
+                if !employeesWorked.contains(employee) {
+                    print("new employee added to final: \(employee)")
+                    employeesWorked.append(employee)
+                } else {
+                    print("Found Duplicate")
+                }
+            }
+        }
+        return employeesWorked
+        
+    }
+    
+    // Returns an array with the Employee IDs who worked on the given date
+    public func getEmployeesWorkedForDay(day startingDate: Date, for dept: String) async -> [Employee] {
+        let employeesRef = db.collection("users")
+                         .document(uid)
+                         .collection("departments")
+                         .document(dept)
+                         .collection("dates")
+                         .document(self.stringFromDate(startingDate))
+                         .collection("times")
+        
+        var empStrings: [String] = []
+        var employees: [Employee] = []
+        
+        do {
+            let querySnapshot = try await employeesRef.getDocuments()
+            for emp in querySnapshot.documents {
+                let empData = emp.data()
+                
+                let newEmployee = Employee(firstName: empData["firstName"] as! String,
+                                           lastName: empData["lastName"] as! String,
+                                           wage: empData["wage"] as! Double,
+                                           department: empData["department"] as! String,
+                                           employeeId: empData["employeeId"] as! String
+                                          )
+                
+                if !empStrings.contains(newEmployee.employeeId) {
+                    employees.append(newEmployee)
+                    empStrings.append(newEmployee.employeeId)
+                }
+            }
+        } catch {
+          print("Error getting documents: \(error)")
+        }
+        
+        return employees
+    }
+    
+    public func createReport(start startDate: Date, end endDate: Date, for dept: String, name: String) async -> Void {
+        Task {
+            self.report = await Report(start: startDate, end: endDate, for: dept, name: name, deptModel: self)
+        }
+    }
+    
+    public func reportIsCompleted() -> Bool {
+        if self.report == nil {
+            return false
+        } else {
+            return report!.completed
+        }
+    }
+    
+    public func getName(_ id: String) -> String {
+        let employee = allEmployees[id]
+        if employee == nil {
+            return "No Name Assigned to #\(id)"
+        }
+        
+        let firstName: String = employee!.firstName
+        let lastName: String = employee!.lastName
+        
+        return "\(firstName) \(lastName)"
+    }
+    
+    public func getEmployee(_ id: String) -> Employee? {
+        return allEmployees[id]
+    }
+    
+    public func hoursWorked(for emp: Employee, on date: Date) async -> Double {
+        let dateString = String(self.int32FromDate(date))
+        
+        var timeWorked: Double = 0.0
+        
+        do {
+            let dateRef = db.collection("users")
+                            .document(uid)
+                            .collection("departments")
+                            .document(emp.department)
+                            .collection("dates")
+                            .document(dateString)
+                            .collection("times")
+            let dateDocument = try await dateRef.document(emp.employeeId).getDocument()
+            let timecard = try dateDocument.data(as: EmployeeTimecard.self)
+            
+            var clockedIn: Date = timecard.timecardEvents[0]
+            var clockedOut: Date = timecard.timecardEvents[1]
+            
+            var i = 0
+            for event in timecard.timecardEvents {
+                
+                
+                // Check if this is a clock-in event
+                if i%2 == 0 {
+                    // If so, then mark beginning
+                    clockedIn = event
+                } else {
+                    // If this is a clock-out event, find the time difference and add it to timeWorked
+                    clockedOut = event
+                    
+                    let timeIntervalInSeconds = clockedOut.timeIntervalSince(clockedIn)
+                    let timeIntervalInMins: Double = Double(timeIntervalInSeconds) / 60.0
+                    let timeIntervalInHours: Double = timeIntervalInMins / 60.0
+                    timeWorked += Double(round(100*timeIntervalInHours)/100)
+                }
+                i+=1
+            }
+            return timeWorked
+            
+            
+        } catch (let error) {
+            print("hrsWorked Error: \(error.localizedDescription)")
+            return 0.0
+        }
+         
+    }
 }

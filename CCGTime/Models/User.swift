@@ -39,8 +39,10 @@ class SessionStore: ObservableObject {
                 self.uid = user.uid
                 self.activeSession = true
                 
-                self.createDeptModel(with: user.uid)
-                self.createEmpModel(with: user.uid)
+                Task {
+                    await self.createDeptModel(with: user.uid)
+                    await self.createEmpModel(with: user.uid)
+                }
                 
             } else {
                 self.activeSession = false
@@ -111,11 +113,11 @@ class SessionStore: ObservableObject {
         }
     }
     
-    func createDeptModel(with uid: String) {
-        self.departmentModel = DepartmentModel(with: uid)
+    func createDeptModel(with uid: String) async {
+        self.departmentModel = await DepartmentModel(with: uid)
     }
     
-    func createEmpModel(with uid: String) {
-        self.employeeModel = EmployeeModel(with: uid)
+    func createEmpModel(with uid: String) async {
+        self.employeeModel = await EmployeeModel(with: uid)
     }
 }

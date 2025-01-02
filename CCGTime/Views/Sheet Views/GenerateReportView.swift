@@ -15,6 +15,10 @@ struct GenerateReportView: View {
     @State private var showDepartmentAlert = false
     @State private var showDateRangeAlert = false
     @State private var showShareSheet = false
+    @State private var showIllegalCharAlert = false
+    @State private var selectedReportTitle = ""
+    @State private var waitingForReport = false
+    @State private var report: Report?
     
     @Binding var showGenerateReportAlert: Bool
     @Binding var selectedStartDate: Date
@@ -25,84 +29,110 @@ struct GenerateReportView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                DatePicker(
-                    "Start Date",
-                    selection: $selectedStartDate,
-                    in: earliestDate...Date(),
-                    displayedComponents: [.date]
-                )
-                
-                DatePicker(
-                    "End Date",
-                    selection: $selectedEndDate,
-                    in: selectedStartDate...Date(),
-                    displayedComponents: [.date]
-                )
-                
-                Picker("Select Department", selection: $selectedDepartment) {
-                    Text("Select a Department").tag("")
-                    ForEach(departmentModel.deptStrings, id: \.self) { dept in
-                        Text(dept)
-                    }
-                }
-            }
-            .navigationTitle("Generate Report")
-            .navigationBarItems(
-                leading: Button("Cancel") {
-                    showGenerateReportAlert = false
-                },
-                trailing: Button("Generate") {
-                    // Check if date range is logical
-                    if selectedStartDate > selectedEndDate {
-                        showDateRangeAlert = true
-                    } else {
-                        // Check if a department was selected
-                        if selectedDepartment.isEmpty {
-                            showDepartmentAlert = true
-                        } else {
-                            
-                            do {
-                                let report = try Report(
-                                    start: selectedStartDate,
-                                    end: selectedEndDate,
-                                    for: selectedDepartment
-                                    )
-                                
-                                if report.completed == true {
-                                    self.openFilesApp()
-                                }
-                                
-                                
-                            } catch {
-                                Alert.error("Could not access documents directory")
-                                showGenerateReportAlert = false
-                            }
-                            
+            if waitingForReport == true && departmentModel.reportIsCompleted() == false {
+                ProgressView("Generating Report...")
+            } else {
+                Form {
+                    DatePicker(
+                        "Start Date",
+                        selection: $selectedStartDate,
+                        in: earliestDate...Date(),
+                        displayedComponents: [.date]
+                    )
+                    
+                    DatePicker(
+                        "End Date",
+                        selection: $selectedEndDate,
+                        in: selectedStartDate...Date(),
+                        displayedComponents: [.date]
+                    )
+                    
+                    Picker("Select Department", selection: $selectedDepartment) {
+                        Text("Select a Department").tag("")
+                        ForEach(departmentModel.deptStrings, id: \.self) { dept in
+                            Text(dept)
                         }
                     }
+                    
+                    TextField(
+                        "Name of file",
+                        text: $selectedReportTitle
+                    )
                 }
-            )
-            .alert(Text("Error"), isPresented: $showDepartmentAlert) {} message: {
-                Text("Please select a department")
-            }
-            .alert(Text("Error"), isPresented: $showDateRangeAlert) {} message: {
-                Text("Starting date must be before end date")
+                .navigationTitle("Generate Report")
+                .navigationBarItems(
+                    leading: Button("Cancel") {
+                        showGenerateReportAlert = false
+                    },
+                    trailing: AsyncButton( action: {
+                        // Check if date range is logical
+                        if selectedStartDate > selectedEndDate {
+                            showDateRangeAlert = true
+                        } else {
+                            // Check if a department was selected
+                            if selectedDepartment.isEmpty {
+                                showDepartmentAlert = true
+                            } else {
+                                // Make sure the given name doesn't have illegal characters using regex
+                                if selectedReportTitle.contains(/[\/:*?\"<>|]/) {
+                                    self.showIllegalCharAlert = true
+                                } else {
+                                    await departmentModel.createReport(
+                                                   start: selectedStartDate,
+                                                   end: selectedEndDate,
+                                                   for: selectedDepartment,
+                                                   name: selectedReportTitle
+                                                 )
+                                    self.waitingForReport = true
+                                }
+                            }
+                        }
+                    }, label: { Text("Generate") })
+                    .alert(Text("Error"), isPresented: $showIllegalCharAlert) {} message: {
+                        Text("Invalid Report Title: Title cannot contain any of the following characters:  /  :  *  ?  \"  >  <  |")
+                    }
+                )
+                .alert(Text("Error"), isPresented: $showDepartmentAlert) {} message: {
+                    Text("Please select a department")
+                }
+                .alert(Text("Error"), isPresented: $showDateRangeAlert) {} message: {
+                    Text("Starting date must be before end date")
+                }
             }
         }
     }
-    
-    private func openFilesApp() {
-        do {
-            let documentsUrl = try FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            let path = documentsUrl.absoluteString.replacingOccurrences(of: "file://", with: "shareddocuments://")
-            if let url = URL(string: path) {
-                UIApplication.shared.open(url)
+}
+
+struct AsyncButton<Label: View>: View {
+    var action: () async -> Void
+    @ViewBuilder var label: () -> Label
+
+    @State private var isPerformingTask = false
+
+    var body: some View {
+        Button(
+            action: {
+                isPerformingTask = true
+            
+                Task {
+                    await action()
+                    isPerformingTask = false
+                }
+            },
+            label: {
+                ZStack {
+                    // We hide the label by setting its opacity
+                    // to zero, since we don't want the button's
+                    // size to change while its task is performed:
+                    label().opacity(isPerformingTask ? 0 : 1)
+
+                    if isPerformingTask {
+                        ProgressView()
+                    }
+                }
             }
-        } catch(let error) {
-            print(error)
-        }
-        
+        )
+        .disabled(isPerformingTask)
     }
 }
 

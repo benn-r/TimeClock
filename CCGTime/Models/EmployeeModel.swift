@@ -26,26 +26,23 @@ class EmployeeModel: ObservableObject {
     private var lastTimeClocked: Date = Date.init(timeIntervalSince1970: TimeInterval(0))
     private var lastIdClocked: String = ""
     
-    init(with givenUid: String) {
+    init(with givenUid: String) async {
         db = Firestore.firestore()
         self.uid = givenUid
-        self.loadData()
+        await self.loadData()
     }
     
-    private func loadData() {
-        // Add listener for employees collection
-        db.collection("users").document(uid).collection("employees").addSnapshotListener() { (querySnapshot, error) in
-            guard error == nil else {
-                print("Error: adding the snapshot listener \(error!.localizedDescription)")
-                return
-            }
+    private func loadData() async {
+        
+        do {
+            let employees = try await db.collection("users").document(uid).collection("employees").getDocuments()
             
-            for document in querySnapshot!.documents {
-                let id = document.documentID
-                let firstName = document.get("firstName") as! String
-                let lastName = document.get("lastName") as! String
-                let wage = document.get("wage") as! Double
-                let department = document.get("department") as! String
+            for employee in employees.documents {
+                let id = employee.documentID
+                let firstName = employee.get("firstName") as! String
+                let lastName = employee.get("lastName") as! String
+                let wage = employee.get("wage") as! Double
+                let department = employee.get("department") as! String
                 
                 
                 let fullName = "\(firstName) \(lastName)"
@@ -53,8 +50,11 @@ class EmployeeModel: ObservableObject {
                 
                 self.employeeIdStrings.append(id)
                 
-                self.employees[id] = Employee(firstName: firstName, lastName: lastName,  wage: wage, department: department)
+                self.employees[id] = Employee(firstName: firstName, lastName: lastName,  wage: wage, department: department, employeeId: id)
             }
+            
+        } catch (let error) {
+            print("Error adding EmployeeModel snapshot listener: \(error.localizedDescription)")
         }
     }
     
@@ -226,7 +226,8 @@ class EmployeeModel: ObservableObject {
                 // This will ALWAYS have a failure case if the document does not exist yet
                 print("Timecard doesn't exist, creating one now...")
                 // Create new timecard and set data in Firebase
-                let newTimecard: EmployeeTimecard = EmployeeTimecard(id: id, dept: department)
+                let employee = self.employees[id]!
+                let newTimecard: EmployeeTimecard = EmployeeTimecard(id: id, dept: department, firstName: employee.firstName, lastName: employee.lastName, name: employee.name, wage: employee.wage)
                 
                 do {
                     try timecardDocRef.setData(from: newTimecard)
@@ -325,7 +326,8 @@ class EmployeeModel: ObservableObject {
                 firstName: firstName,
                 lastName: lastName,
                 wage: Double(wage.value) ?? 0.0,
-                department: department
+                department: department,
+                employeeId: id.value
             )
             
             try docRef.setData(from: employee)
